@@ -42,23 +42,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         //     console.log(err);
         // }
 
-        setToken("dfsd");
-
-        if (token) {
+        if (data.username == "admin" && data.password == "1234") {
+            setToken("dfsd");
             navigate("/pipeline");
             return;
         }
+        else{
+            alert("Wrong username or password")
+        }
     }
-
-    useEffect(() => {
-
-        const intervalId = setInterval(() => {
-            // if(token)
-            logOut();
-        }, 10000);
-
-        return () => clearInterval(intervalId);
-    }, []);
 
 
     const logOut = () => {
