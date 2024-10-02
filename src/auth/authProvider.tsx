@@ -44,7 +44,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (data.username == "admin" && data.password == "1234") {
             setToken("dfsd");
-            navigate("/pipeline");
+            navigate("/");
             return;
         }
         else{
