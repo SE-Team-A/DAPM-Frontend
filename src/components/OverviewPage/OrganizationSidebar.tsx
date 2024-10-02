@@ -12,7 +12,7 @@ import { getOrganizations, getRepositories, getResources } from '../../redux/sel
 import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
 import { Organization, Repository, Resource } from '../../redux/states/apiState';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import ResourceUploadButton from './Buttons/ResourceUploadButton';
 import { downloadResource, fetchOrganisation, fetchOrganisationRepositories, fetchOrganisations, fetchPipeline, fetchRepositoryPipelines, fetchRepositoryResources, fetchResource, putPipeline, putRepository } from '../../services/backendAPI';
 import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
@@ -20,6 +20,7 @@ import AddOrganizationButton from './Buttons/AddOrganizationButton';
 import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 import OperatorUploadButton from './Buttons/OperatorUploadButton';
 import { Padding } from '@mui/icons-material';
+import AddMemberButton from '../createUser/addMemberButton';
 
 const drawerWidth = 240;
 
@@ -62,6 +63,7 @@ async function downloadReadableStream(url: string, fileName: string) {
       PaperProps={{
         sx: {
           backgroundColor: '#292929',
+          zIndex:10
         }
       }}
       sx={{
@@ -78,11 +80,19 @@ async function downloadReadableStream(url: string, fileName: string) {
     >
       <Divider />
       <DrawerHeader>
+        <Typography sx={{ width: '100%', textAlign: 'center' }} variant="h6"   noWrap component="div">
+          Add Member
+        </Typography>
+        <AddMemberButton/>
+      </DrawerHeader>
+
+      <DrawerHeader>
         <Typography sx={{ width: '100%', textAlign: 'center' }} variant="h6" noWrap component="div">
           Organisations
         </Typography>
         <AddOrganizationButton />
       </DrawerHeader>
+
       <List>
         {organizations.map((organization) => (
           <>
