@@ -2,26 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.signup input::placeholder{
-    color: #ffffff4d;
+.signup input::placeholder {
+  color: #ffffff4d;
 }
 
-.signup-input:focus-within{
-    border-color: white;
-    -webkit-transition: 0.5s;
+.signup-input:focus-within {
+  border-color: white;
+  -webkit-transition: 0.5s;
   transition: 0.5s;
 }
 
 .signup input:focus {
-    outline: none;
-  }
+  outline: none;
+}
 
-  select:focus{
-    outline:  none;
-  }
+select:focus {
+  outline: none;
+}
+
+.logout-button-text:hover div {
+  color: white;
+}
