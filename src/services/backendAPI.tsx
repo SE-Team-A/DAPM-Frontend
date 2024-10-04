@@ -338,11 +338,11 @@ export async function fetchPipeline(orgId: string, repId: string, pipId: string)
 }
 
 export async function putRepository(orgId: string, repositoryName: string) {
-    
+
     const headers = new Headers()
     headers.append("accept", "application/json")
     headers.append("Content-Type", "application/json")
-    
+
 
     try {
         const response = await fetch(`http://` + path + `/Organizations/${orgId}/repositories`, {
@@ -428,7 +428,7 @@ export async function putResource(orgId: string, repId: string, formData: FormDa
     }
 }
 
-export async function putPipeline(orgId: string, repId: string, pipelineData:any){
+export async function putPipeline(orgId: string, repId: string, pipelineData: any) {
     console.log(pipelineData)
     try {
         const response = await fetch(`http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines`, {
@@ -438,8 +438,10 @@ export async function putPipeline(orgId: string, repId: string, pipelineData:any
                 "Accept": "application/json"
             },
             body: JSON.stringify(pipelineData)
+          
+            
         });
-
+        console.log('orgid' + orgId + 'repid'+repId);
         if (!response.ok) {
             throw new Error('put pipeline, Network response was not ok');
         }
@@ -515,7 +517,7 @@ export async function putExecution(orgId: string, repId: string, pipeId: string)
     }
 }
 
-export async function putCommandStart(orgId: string, repId: string, pipeId: string, exeId:string) {
+export async function putCommandStart(orgId: string, repId: string, pipeId: string, exeId: string) {
     try {
         const response = await fetch(`http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions/${exeId}/commands/start`, {
             method: "POST",
@@ -606,9 +608,9 @@ export async function PostNewPeer(domainName: string) {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
 
-        const response = await fetch(`http://` + path +`/system/collab-handshake`, {
+        const response = await fetch(`http://` + path + `/system/collab-handshake`, {
             method: "POST",
-            body: JSON.stringify({targetPeerDomain: domainName}),
+            body: JSON.stringify({ targetPeerDomain: domainName }),
             headers: headers
         });
 
@@ -680,3 +682,34 @@ export async function downloadResource(organizationId: string, repositoryId: str
         throw error; // Propagate error to the caller
     }
 }
+// Define the API function to "delete" (update) a resource with a PUT request
+export async function deleteResource(orgId: string, repositoryId: string, resourceId: string): Promise<Response> {
+    const response01 = (`http://` + path + `/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`);
+
+    try {
+        const response = await fetch(response01, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                isDeleted: true,  // or any status flag you want to update
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to mark resource as deleted with id: ${resourceId}`);
+        }
+
+        return response; // Returns the response, could also return response.json() if you expect a JSON response
+    } catch (error) {
+        console.error('Error updating (deleting) resource:', error);
+        throw error;
+    }
+}
+
+
+
+
+
+
