@@ -11,6 +11,7 @@ interface User {
 interface AuthContextType {
     user:  User| null;
     token: string;
+    loadingLogin: boolean;
     loginAction: (data: { username: string; password: string }) => Promise<void>;
     logOut: () => void;
 }
@@ -23,6 +24,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         return storedUser ? JSON.parse(storedUser) : null; // Parse JSON or return null
     });
     const [token, setToken] = useState(localStorage.getItem("token") || "");
+    const [loadingLogin, setLoadingLogin] = useState(false);
     const navigate = useNavigate();
 
 
@@ -40,8 +42,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (res) {
 
                 const ticketId = res.ticketId;
-
+                setLoadingLogin(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
+                setLoadingLogin(false)
                 const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
                     method: "GET", 
                     headers: {
@@ -87,7 +90,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
 
-    return <AuthContext.Provider value={{ token, user, loginAction, logOut }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ token, user, loginAction, logOut,loadingLogin }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

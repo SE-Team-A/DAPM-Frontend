@@ -16,8 +16,9 @@ export default function LoginForm() {
             password: Yup.string().required('Password is required')
 
         }),
-        onSubmit: async (values) => {
+        onSubmit: async (values, { resetForm }) => {
             auth?.loginAction(values)
+            resetForm()
         }
     });
 
