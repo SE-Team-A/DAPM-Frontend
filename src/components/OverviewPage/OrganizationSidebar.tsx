@@ -106,7 +106,7 @@ export default function PersistentDrawerLeft() {
     >
       <Divider />
       {
-        auth?.user?.isAdmin &&
+        auth?.user?.isAdmin==="true" &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}

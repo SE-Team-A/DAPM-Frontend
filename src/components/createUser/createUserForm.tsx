@@ -9,6 +9,15 @@ interface CreateUserFormProps {
     setOpenAddMemberPopup: (value: boolean) => void;
 }
 
+interface SignupResponse {
+    ticketId: string;
+    status: number;
+    message: string;
+    result?: {
+        succeeded: boolean;
+    };
+}
+
 const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup }) => {
     const auth = useAuth();
 
@@ -21,14 +30,26 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup })
         },
         validationSchema: Yup.object({
             username: Yup.string().required('Username is required'),
-            password: Yup.string().required('Password is required'),
+            password: Yup.string().required('Password is required').matches(
+                    /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+                    'Password must contain at least one numeric value, one special character, one uppercase letter, one lowercase letter, and at least 8 characters'
+                ),
             name: Yup.string().required('Name is required'),
             role: Yup.string().required('Role is required')
 
         }),
-        onSubmit: async (values) => {
+        onSubmit: async (values,{ resetForm }) => {
             console.log(values)
-            setOpenAddMemberPopup(false)
+            const error = await auth?.signupAction(values) as SignupResponse;
+            console.log(error, "I am error")
+            if(error?.result?.succeeded){
+
+                setOpenAddMemberPopup(false)
+            }
+            else{
+                alert("Username is already used")
+                resetForm()
+            }
         }
     });
 
