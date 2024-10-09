@@ -5,14 +5,16 @@ import { jwtDecode } from "jwt-decode";
 interface User {
     id: string;
     username: string;
-    isAdmin: boolean;  
+    isAdmin: string;  
 }
 
 interface AuthContextType {
     user:  User| null;
     token: string;
     loadingLogin: boolean;
+    loadingRegister: boolean;
     loginAction: (data: { username: string; password: string }) => Promise<void>;
+    signupAction: (data: { username: string; password: string; name:string; role:string }) => Promise<unknown>;
     logOut: () => void;
 }
 
@@ -25,6 +27,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const [loadingLogin, setLoadingLogin] = useState(false);
+    const [loadingRegister, setLoadingRegister] = useState(false);
     const navigate = useNavigate();
 
 
@@ -62,7 +65,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setUser(jwtDecode(statusRes.result.token))
                     localStorage.setItem("user", JSON.stringify(jwtDecode(statusRes.result.token)));
 
-                    console.log(token)
+                    console.log(jwtDecode(statusRes.result.token))
                     navigate("/");
 
                 } else {
@@ -80,6 +83,55 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signupAction = async (data: { username: string; password: string; name:string; role:string }) => {
+        try {
+            const response = await fetch("http://localhost:5281/authentication/registration", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            const res = await response.json();
+
+            if (res) {
+
+                const ticketId = res.ticketId;
+                setLoadingRegister(true)
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                setLoadingRegister(false)
+                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                    method: "GET", 
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const statusRes = await statusResponse.json();
+                // console.log(statusRes)
+                return statusRes
+
+                // // Check if the status retrieval succeeded
+                // if (statusRes.result.succeeded) {
+
+
+                // } else {
+                //     alert("Wrong username or password");
+                //     throw new Error("Wrong username or password");
+                // }
+
+            } else {
+                // alert("Wrong username or password");
+                throw new Error(res.message || "Registration failed");
+            }
+
+        } catch (err) {
+            return err;
+            console.log("Error:", err);
+        }
+
+    }
+
 
     const logOut = () => {
         setUser(null);
@@ -90,7 +142,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
 
-    return <AuthContext.Provider value={{ token, user, loginAction, logOut,loadingLogin }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ token, user, loginAction, logOut,signupAction,loadingLogin,loadingRegister }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
