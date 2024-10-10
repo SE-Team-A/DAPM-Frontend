@@ -25,6 +25,8 @@ export default function MediaCard({ id, name, imgData }: PipelineCardProps) {
     navigate('/pipeline');
   }
 
+  
+
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardActionArea onClick={navigateToPipeline}>
