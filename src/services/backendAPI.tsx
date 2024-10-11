@@ -685,16 +685,16 @@ export async function downloadResource(organizationId: string, repositoryId: str
 // Define the API function to "delete" (update) a resource with a PUT request
 export async function deleteResource(orgId: string, repositoryId: string, resourceId: string): Promise<Response> {
     const response01 = (`http://` + path + `/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`);
-
+    console.log("i am here backapi");
     try {
         const response = await fetch(response01, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                isDeleted: true,  // or any status flag you want to update
-            }),
+         /*   body: JSON.stringify({
+                isDeleted: true,  
+            }),*/
         });
 
         if (!response.ok) {
