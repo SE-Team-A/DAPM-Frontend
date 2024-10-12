@@ -1,3 +1,14 @@
+/**
+ * Authors:
+ * - Mahdi El Dirani 
+ * - Hussein Dirani
+ * 
+ * Description:
+ * This component manages authentication state, including login and signup actions, 
+ * using React Context API. It handles user information, JWT token storage, 
+ * and user session management. 
+ */
+
 import { useContext, createContext, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";

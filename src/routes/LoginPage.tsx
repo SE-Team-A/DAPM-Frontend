@@ -1,3 +1,10 @@
+/**
+ * Author:
+ * - Hussein Dirani
+ * 
+ * Description:
+ * Login Page
+ */
 import { useAuth } from "../auth/authProvider";
 import LoginForm from "../components/login/loginFrom";
 

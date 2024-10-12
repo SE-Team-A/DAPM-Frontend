@@ -1,3 +1,10 @@
+/**
+ * Author:
+ * - Mahdi El Dirani
+ * 
+ * Description:
+ * Add Member Dialog
+ */
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import CreateUserForm from './createUserForm';
 import CloseIcon from '@mui/icons-material/Close';

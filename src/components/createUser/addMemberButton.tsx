@@ -1,3 +1,10 @@
+/**
+ * Author:
+ * - Mahdi El Dirani
+ * 
+ * Description:
+ * Button to open Add Member Dialog
+ */
 import { Button } from "@mui/material";
 import { useState } from "react";
 import AddMemberPopup from "./addMemberPopup";
