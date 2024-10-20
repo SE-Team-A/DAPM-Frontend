@@ -95,10 +95,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const signupAction = async (data: { username: string; password: string; name:string; role:string }) => {
+        console.log(token)
+        
         try {
             const response = await fetch("http://localhost:5281/authentication/registration", {
                 method: "POST",
-                mode: 'no-cors', 
+                // mode: 'no-cors', 
                 headers: {
                     "Content-Type": "application/json",
                     
@@ -107,6 +109,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                 body: JSON.stringify(data),
             });
             const res = await response.json();
+
 
             if (res) {
                 
@@ -117,7 +120,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setLoadingRegister(false)
                 const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
                     method: "GET",
-                    mode: 'no-cors', 
+                    // mode: 'no-cors', 
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
