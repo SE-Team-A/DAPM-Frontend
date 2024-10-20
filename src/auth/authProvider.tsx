@@ -98,23 +98,29 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await fetch("http://localhost:5281/authentication/registration", {
                 method: "POST",
+                mode: 'no-cors', 
                 headers: {
                     "Content-Type": "application/json",
+                    
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify(data),
             });
             const res = await response.json();
 
             if (res) {
+                
 
                 const ticketId = res.ticketId;
                 setLoadingRegister(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 setLoadingRegister(false)
                 const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
-                    method: "GET", 
+                    method: "GET",
+                    mode: 'no-cors', 
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
                     },
                 });
 
@@ -137,8 +143,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
 
         } catch (err) {
-            return err;
             console.log("Error:", err);
+            return err;
         }
 
     }

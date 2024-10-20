@@ -49,12 +49,19 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup })
             console.log(values)
             const error = await auth?.signupAction(values) as SignupResponse;
             console.log(error, "I am error")
-            if(error?.result?.succeeded){
+            if(error?.result){
+                if(error?.result?.succeeded){
 
-                setOpenAddMemberPopup(false)
+                    setOpenAddMemberPopup(false)
+                }
+                else if(!error?.result?.succeeded){
+                    console.log("usernmamm: ",error?.result)
+                    alert("Username is already used")
+                    resetForm()
+                }
             }
             else{
-                alert("Username is already used")
+                alert("Fetch error")
                 resetForm()
             }
         }
