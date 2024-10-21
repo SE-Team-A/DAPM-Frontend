@@ -688,7 +688,7 @@ export async function deleteResource(orgId: string, repositoryId: string, resour
     console.log("i am here backapi");
     try {
         const response = await fetch(response01, {
-            method: 'PUT',
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
