@@ -306,6 +306,28 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
     }
 }
 
+/**
+ * Author:
+ * - Raihanullah Mehran
+ *
+ * Description:
+ * This method fetches the pipelines from the database.
+ */
+export async function fetchRepositoryPipelineList(orgId: string, repId: string) {
+    try {
+      const response = await fetch(`http://` + path + `/Organizations/${orgId}/repositories/${repId}/pipeline`, { headers });
+      if (!response.ok) {
+        throw new Error("fetching pipelines, Network response was not ok");
+      }
+      const jsonData = await response.json();
+  
+      return jsonData.result?.pipelines;
+    } catch (error) {
+      console.error("fetching pipelines, Error fetching data:", error);
+      throw error;
+    }
+  }
+
 export async function fetchPipeline(orgId: string, repId: string, pipId: string) {
     try {
         const response = await fetch(`http://` + path + `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`, { headers });
