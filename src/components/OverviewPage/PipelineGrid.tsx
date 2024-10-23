@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addNewPipeline,
   setImageData,
+  setMultipleImageData,
   setPipelines,
 } from "../../redux/slices/pipelineSlice";
 import { getPipelines } from "../../redux/selectors";
@@ -18,13 +19,16 @@ import FlowDiagram from "./ImageGeneration/FlowDiagram";
 import { toPng } from "html-to-image";
 import { getNodesBounds, getViewportForBounds } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   getOrganizations,
   getRepositories,
 } from "../../redux/selectors/apiSelector";
 import { fetchRepositoryPipelineList } from "../../services/backendAPI";
 import { Spinner } from "../common/Spinner";
+import ReactFlow, { Edge, Handle, Node } from "reactflow";
+import throttle from "lodash/throttle";
+import { Root } from "react-dom/client";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -33,6 +37,24 @@ const Item = styled(Paper)(({ theme }) => ({
   textAlign: "center",
   color: theme.palette.text.secondary,
 }));
+
+interface NodeState {
+  nodes: Node[];
+  edges: Edge[];
+}
+
+// Pipeline interface using NodeState
+interface Pipeline {
+  id: string;
+  name: string;
+  imgData?: string;
+  pipeline: NodeState;
+}
+
+interface ImageData {
+  id: string;
+  imgData: string;
+}
 
 export default function AutoGrid() {
   const navigate = useNavigate();
@@ -47,20 +69,22 @@ export default function AutoGrid() {
    * 2. I created setPipelines reducer on the pipelineSlice.ts of redux to hold the fetched pipelines.
    * 3. Updated the rendering code to use createRoot to replace reactDOM.render because it's deprecated.
    */
+  const pipelines = useSelector(getPipelines);
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
-  const pipelines = useSelector(getPipelines);
+
+  const selectedOrg = useMemo(() => organizations[0], [organizations]);
+  const selectedRepo = useMemo(
+    () =>
+      repositories.filter((repo) => repo.organizationId === selectedOrg.id)[0],
+    [repositories, selectedOrg]
+  );
 
   const fetcDbPipelines = async () => {
     try {
-      const selectedOrg = organizations[0];
-      const selectedRepo = repositories.filter(
-        (repo) => repo.organizationId === selectedOrg.id
-      )[0];
-
       if (!selectedRepo) {
         console.error("No repository found for the selected organization.");
-        return [];
+        return;
       }
 
       const pipelines = await fetchRepositoryPipelineList(
@@ -71,21 +95,34 @@ export default function AutoGrid() {
       return pipelines || [];
     } catch (error) {
       console.error("Error fetching data:", error);
-      return [];
+      return;
     }
   };
 
   useEffect(() => {
+    if (pipelines.length > 0) {
+      console.log(pipelines);
+
+      console.log("request cancelled");
+
+      return;
+    }
+    console.log("current Pipelines:", pipelines);
+
     const updatePipelines = async () => {
+      console.log("fetching request sent!");
+
       const dbPipelines = await fetcDbPipelines();
-      if (dbPipelines) {
-        console.log("dbPipelines : ", dbPipelines);
+      if (
+        dbPipelines &&
+        JSON.stringify(dbPipelines) !== JSON.stringify(pipelines)
+      ) {
         dispatch(setPipelines(dbPipelines));
       }
     };
 
     updatePipelines();
-  }, [dispatch, organizations, repositories]);
+  }, []);
 
   const createNewPipeline = () => {
     dispatch(
@@ -99,66 +136,182 @@ export default function AutoGrid() {
     }
   };
 
-  pipelines.map(({ pipeline: flowData, id, name }) => {
-    const nodes = flowData.nodes;
-    const edges = flowData.edges;
-    const pipelineId = id;
+  // pipelines.map(({ pipeline: flowData, id, name }) => {
+  //   const nodes = flowData.nodes;
+  //   const edges = flowData.edges;
+  //   const pipelineId = id;
+  //   const container = document.createElement("div");
+  //   container.style.position = "absolute";
+  //   container.style.top = "-10000px";
+  //   container.style.width = "800px";
+  //   container.style.height = "600px";
+  //   container.id = pipelineId;
+
+  //   document.body.appendChild(container);
+
+  //   const root = createRoot(container);
+  //   root.render(<FlowDiagram nodes={nodes} edges={edges} />);
+
+  //   setTimeout(() => {
+  //     const width = 800;
+  //     const height = 600;
+
+  //     const nodesBounds = getNodesBounds(nodes!);
+  //     const { x, y, zoom } = getViewportForBounds(
+  //       nodesBounds,
+  //       width,
+  //       height,
+  //       0.5,
+  //       2,
+  //       1
+  //     );
+
+  //     const validPipelineId = CSS.escape(pipelineId);
+
+  //     const element = document.querySelector(
+  //       `#${validPipelineId} .react-flow__viewport`
+  //     ) as HTMLElement;
+
+  //     if (element) {
+  //       toPng(element, {
+  //         backgroundColor: "#333",
+  //         width: width,
+  //         height: height,
+  //         style: {
+  //           width: `${width}px`,
+  //           height: `${height}px`,
+  //           transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+  //         },
+  //       })
+  //         .then((dataUrl) => {
+  //           dispatch(setImageData({ id: pipelineId, imgData: dataUrl }));
+  //           document.body.removeChild(container);
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error generating PNG:", error);
+  //           document.body.removeChild(container);
+  //         });
+  //     } else {
+  //       console.error(`Element not found for pipeline: ${pipelineId}`);
+  //     }
+  //   }, 1000);
+  // });
+
+  // Helper to retry finding the element with a delay (retry for 500ms with small intervals)
+  const waitForElement = async (
+    selector: string,
+    retries: number = 10,
+    interval: number = 50
+  ): Promise<HTMLElement | null> => {
+    for (let i = 0; i < retries; i++) {
+      const element = document.querySelector(selector) as HTMLElement;
+      if (element) {
+        return element;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval)); // Wait a bit before retrying
+    }
+    return null;
+  };
+
+  // Throttled image generator helper function
+  const generatePipelineImage = async (
+    pipelineId: string,
+    flowData: NodeState
+  ): Promise<ImageData> => {
+    const { nodes, edges } = flowData;
+
+    // Create an off-screen container
     const container = document.createElement("div");
     container.style.position = "absolute";
-    container.style.top = "-10000px";
-    container.style.width = "800px";
-    container.style.height = "600px";
+    container.style.top = "-10000px"; // Hide off-screen
     container.id = pipelineId;
 
     document.body.appendChild(container);
 
-    const root = createRoot(container);
+    // Render the FlowDiagram inside the off-screen container
+    const root: Root = createRoot(container);
     root.render(<FlowDiagram nodes={nodes} edges={edges} />);
 
-    setTimeout(() => {
-      const width = 800;
-      const height = 600;
+    return new Promise(async (resolve, reject) => {
+      requestAnimationFrame(async () => {
+        const width = 800;
+        const height = 600;
 
-      const nodesBounds = getNodesBounds(nodes!);
-      const { x, y, zoom } = getViewportForBounds(
-        nodesBounds,
-        width,
-        height,
-        0.5,
-        2,
-        1
-      );
+        const nodesBounds = getNodesBounds(nodes);
+        const { x, y, zoom } = getViewportForBounds(
+          nodesBounds,
+          width,
+          height,
+          0.5,
+          2,
+          1
+        );
 
-      const validPipelineId = CSS.escape(pipelineId);
+        const validPipelineId = CSS.escape(pipelineId);
+        const elementSelector = `#${validPipelineId} .react-flow__viewport`;
 
-      const element = document.querySelector(
-        `#${validPipelineId} .react-flow__viewport`
-      ) as HTMLElement;
+        // Wait for the element to be available
+        const element = await waitForElement(elementSelector);
 
-      if (element) {
-        toPng(element, {
-          backgroundColor: "#333",
-          width: width,
-          height: height,
-          style: {
-            width: `${width}px`,
-            height: `${height}px`,
-            transform: `translate(${x}px, ${y}px) scale(${zoom})`,
-          },
-        })
-          .then((dataUrl) => {
-            dispatch(setImageData({ id: pipelineId, imgData: dataUrl }));
-            document.body.removeChild(container);
+        if (element) {
+          toPng(element, {
+            backgroundColor: "#333",
+            width: width,
+            height: height,
+            style: {
+              width: `${width}px`,
+              height: `${height}px`,
+              transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+            },
           })
-          .catch((error) => {
-            console.error("Error generating PNG:", error);
-            document.body.removeChild(container);
-          });
-      } else {
-        console.error(`Element not found for pipeline: ${pipelineId}`);
+            .then((dataUrl) => {
+              document.body.removeChild(container);
+              resolve({ id: pipelineId, imgData: dataUrl });
+            })
+            .catch((error) => {
+              document.body.removeChild(container);
+              reject(error);
+            });
+        } else {
+          document.body.removeChild(container);
+          reject(new Error(`Element not found for pipeline: ${pipelineId}`));
+        }
+      });
+    });
+  };
+
+  // Properly throttling the asynchronous function using lodash throttle
+  const throttledGeneratePipelineImage = throttle(
+    (pipelineId: string, flowData: NodeState) =>
+      generatePipelineImage(pipelineId, flowData),
+    200
+  );
+
+  // Generate images for all pipelines and dispatch the data at once
+  const generateAllPipelineImages = async () => {
+    const imageDataArray: ImageData[] = [];
+
+    for (const pipeline of pipelines) {
+      const { id, pipeline: flowData } = pipeline;
+
+      try {
+        const imgData = await throttledGeneratePipelineImage(id, flowData);
+        imageDataArray.push(imgData);
+      } catch (error) {
+        console.error(`Error generating image for pipeline ${id}:`, error);
       }
-    }, 1000);
-  });
+    }
+
+    if (imageDataArray.length > 0) {
+      dispatch(setMultipleImageData(imageDataArray));
+    }
+  };
+
+  useEffect(() => {
+    if (pipelines.length > 0) {
+      generateAllPipelineImages();
+    }
+  }, [pipelines, dispatch]);
 
   return (
     <>
