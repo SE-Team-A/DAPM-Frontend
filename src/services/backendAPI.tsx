@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Stream } from "stream";
 import { json } from "stream/consumers";
 
@@ -6,10 +7,17 @@ const vmPath = `dapm1.compute.dtu.dk:5000`;
 const localPath = `localhost:5281`;
 
 const path = localPath;
+const token = localStorage.getItem("token");
+const headers = {
+  Authorization: `Bearer ${token}`,
+  "Content-Type": "application/json",
+};
 
 export async function fetchStatus(ticket: string) {
   try {
-    const response = await fetch(`http://` + path + `/status/${ticket}`);
+    const response = await fetch(`http://` + path + `/status/${ticket}`, {
+      headers,
+    });
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -24,7 +32,9 @@ export async function fetchStatus(ticket: string) {
 
 export async function fetchFile(ticket: string) {
   try {
-    const response = await fetch(`http://` + path + `/status/${ticket}`);
+    const response = await fetch(`http://` + path + `/status/${ticket}`, {
+      headers,
+    });
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -38,7 +48,9 @@ export async function fetchFile(ticket: string) {
 
 export async function fetchOrganisations() {
   try {
-    const response = await fetch(`http://` + path + `/organizations`);
+    const response = await fetch(`http://` + path + `/organizations`, {
+      headers,
+    });
     if (!response.ok) {
       throw new Error("Fetching orgs, Network response was not ok");
     }
@@ -76,7 +88,9 @@ export async function fetchOrganisations() {
 
 export async function fetchOrganisation(orgId: string) {
   try {
-    const response = await fetch(`http://` + path + `/Organizations/${orgId}`);
+    const response = await fetch(`http://` + path + `/Organizations/${orgId}`, {
+      headers,
+    });
     if (!response.ok) {
       throw new Error("Fetching org, Network response was not ok");
     }
@@ -115,7 +129,8 @@ export async function fetchOrganisation(orgId: string) {
 export async function fetchOrganisationRepositories(orgId: string) {
   try {
     const response = await fetch(
-      `http://` + path + `/Organizations/${orgId}/repositories`
+      `http://` + path + `/Organizations/${orgId}/repositories`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("Fecthing reps, Network response was not ok");
@@ -155,7 +170,8 @@ export async function fetchOrganisationRepositories(orgId: string) {
 export async function fetchRepository(orgId: string, repId: string) {
   try {
     const response = await fetch(
-      `http://` + path + `/Organizations/${orgId}/repositories/${repId}`
+      `http://` + path + `/Organizations/${orgId}/repositories/${repId}`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("Fecthing rep, Network response was not ok");
@@ -196,7 +212,8 @@ export async function fetchRepositoryResources(orgId: string, repId: string) {
     const response = await fetch(
       `http://` +
         path +
-        `/Organizations/${orgId}/repositories/${repId}/resources`
+        `/Organizations/${orgId}/repositories/${repId}/resources`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("Fetching resources, Network response was not ok");
@@ -243,7 +260,8 @@ export async function fetchResource(
     const response = await fetch(
       `http://` +
         path +
-        `/Organizations/${orgId}/repositories/${repId}/resources/${resId}`
+        `/Organizations/${orgId}/repositories/${repId}/resources/${resId}`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("Fetching resource, Feching Network response was not ok");
@@ -288,7 +306,8 @@ export async function fetchRepositoryPipelineList(
     const response = await fetch(
       `http://` +
         path +
-        `/Organizations/${orgId}/repositories/${repId}/pipeline`
+        `/Organizations/${orgId}/repositories/${repId}/pipeline`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("fetching pipelines, Network response was not ok");
@@ -307,7 +326,8 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
     const response = await fetch(
       `http://` +
         path +
-        `/Organizations/${orgId}/repositories/${repId}/pipelines`
+        `/Organizations/${orgId}/repositories/${repId}/pipelines`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("fetching pipelines, Network response was not ok");
@@ -353,7 +373,8 @@ export async function fetchPipeline(
     const response = await fetch(
       `http://` +
         path +
-        `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`
+        `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("fetching pipeline, Network response was not ok");
@@ -394,6 +415,7 @@ export async function putRepository(orgId: string, repositoryName: string) {
   const headers = new Headers();
   headers.append("accept", "application/json");
   headers.append("Content-Type", "application/json");
+  headers.append("Authorization", `Bearer ${token}`);
 
   try {
     const response = await fetch(
@@ -446,6 +468,10 @@ export async function putResource(
   repId: string,
   formData: FormData
 ) {
+  const headers = new Headers();
+  headers.append("accept", "application/json");
+  headers.append("Content-Type", "application/json");
+  headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
       `http://` +
@@ -453,6 +479,7 @@ export async function putResource(
         `/Organizations/${orgId}/repositories/${repId}/resources`,
       {
         method: "POST",
+        headers,
         body: formData,
       }
     );
@@ -507,6 +534,7 @@ export async function putPipeline(
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(pipelineData),
       }
@@ -552,11 +580,14 @@ export async function putExecution(
   repId: string,
   pipeId: string
 ) {
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
       `http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions`,
       {
         method: "POST",
+        headers,
       }
     );
 
@@ -602,11 +633,14 @@ export async function putCommandStart(
   pipeId: string,
   exeId: string
 ) {
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
       `http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions/${exeId}/commands/start`,
       {
         method: "POST",
+        headers,
       }
     );
 
@@ -651,6 +685,8 @@ export async function putOperator(
   repId: string,
   formData: FormData
 ) {
+  const headers = new Headers();
+  headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
       `http://` +
@@ -658,6 +694,7 @@ export async function putOperator(
         `/Organizations/${orgId}/repositories/${repId}/resources/operators`,
       {
         method: "POST",
+        headers,
         body: formData,
       }
     );
@@ -705,6 +742,7 @@ export async function PostNewPeer(domainName: string) {
 
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
 
     const response = await fetch(
       `http://` + path + `/system/collab-handshake`,
@@ -754,7 +792,8 @@ export async function downloadResource(
     const response = await fetch(
       `http://` +
         path +
-        `/organizations/${organizationId}/repositories/${repositoryId}/resources/${resourceId}/file`
+        `/organizations/${organizationId}/repositories/${repositoryId}/resources/${resourceId}/file`,
+      { headers }
     );
     if (!response.ok) {
       throw new Error("Fetching orgs, Network response was not ok");

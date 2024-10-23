@@ -45,9 +45,9 @@ import OperatorUploadButton from "./Buttons/OperatorUploadButton";
 import { Padding } from "@mui/icons-material";
 import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
+import { useAuth } from "../../auth/authProvider";
 
 const drawerWidth = 240;
-
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -62,6 +62,8 @@ export default function PersistentDrawerLeft() {
   const organizations: Organization[] = useAppSelector(getOrganizations);
   const repositories: Repository[] = useAppSelector(getRepositories);
   const resources = useSelector(getResources);
+  const auth = useAuth();
+
 
   useEffect(() => {
     dispatch(organizationThunk());
@@ -103,17 +105,20 @@ export default function PersistentDrawerLeft() {
       anchor="left"
     >
       <Divider />
-      <DrawerHeader>
-        <Typography
-          sx={{ width: "100%", textAlign: "center" }}
-          variant="h6"
-          noWrap
-          component="div"
-        >
-          Add Member
-        </Typography>
-        <AddMemberButton />
-      </DrawerHeader>
+      {
+        auth?.user?.isAdmin==="true" &&
+        <DrawerHeader>
+          <Typography
+            sx={{ width: "100%", textAlign: "center" }}
+            variant="h6"
+            noWrap
+            component="div"
+          >
+            Add Member
+          </Typography>
+          <AddMemberButton />
+        </DrawerHeader>
+      }
 
       <DrawerHeader>
         <Typography
@@ -178,7 +183,7 @@ export default function PersistentDrawerLeft() {
                   </div>
                   {resources.map((resource) =>
                     resource.repositoryId === repository.id &&
-                    resource.type !== "operator" ? (
+                      resource.type !== "operator" ? (
                       <ListItem key={resource.id} disablePadding>
                         <ListItemButton
                           sx={{ paddingBlock: 0 }}
@@ -212,7 +217,7 @@ export default function PersistentDrawerLeft() {
                   </div>
                   {resources.map((resource) =>
                     resource.repositoryId === repository.id &&
-                    resource.type === "operator" ? (
+                      resource.type === "operator" ? (
                       <ListItem key={resource.id} disablePadding>
                         <ListItemButton sx={{ paddingBlock: 0 }}>
                           <ListItemText
