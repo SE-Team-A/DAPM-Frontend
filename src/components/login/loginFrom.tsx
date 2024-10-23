@@ -1,3 +1,10 @@
+/**
+ * Author:
+ * - Hussein Dirani
+ * 
+ * Description:
+ * Login Form
+ */
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import PersonIcon from '@mui/icons-material/Person';
@@ -16,8 +23,9 @@ export default function LoginForm() {
             password: Yup.string().required('Password is required')
 
         }),
-        onSubmit: async (values) => {
+        onSubmit: async (values, { resetForm }) => {
             auth?.loginAction(values)
+            resetForm()
         }
     });
 
