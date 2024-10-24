@@ -838,3 +838,32 @@ export async function downloadResource(
     throw error; // Propagate error to the caller
   }
 }
+
+// Define the API function to "delete" (update) a resource with a PUT request
+//Ayat Al Rifai
+export async function deleteResource(orgId: string, repositoryId: string, resourceId: string): Promise<Response> {
+  //const headers = new Headers()
+ // headers.append("Authorization", `Bearer ${token}`);
+  const response01 = (`http://` + path + `/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`);
+  try {
+      const response = await fetch(response01, {
+          method: 'DELETE',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+          },
+       /*   body: JSON.stringify({
+              isDeleted: true,  
+          }),*/
+      });
+
+      if (!response.ok) {
+          throw new Error(`Failed to mark resource as deleted with id: ${resourceId}`);
+      }
+
+      return response; // Returns the response, could also return response.json() if you expect a JSON response
+  } catch (error) {
+      console.error('Error updating (deleting) resource:', error);
+      throw error;
+  }
+}
