@@ -402,37 +402,9 @@ export async function fetchPipeline(orgId: string, repId: string, pipId: string)
         console.error('fetching pipeline, Error fetching data:', error);
         throw error; // Propagate error to the caller
     }
-    const jsonData = await response.json();
-
-    // Fetch additional data recursively
-    const getData = async (ticketId: string): Promise<any> => {
-      const maxRetries = 10;
-      const delay = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms));
-
-      for (let retries = 0; retries < maxRetries; retries++) {
-        try {
-          const data = await fetchStatus(ticketId);
-          if (data.status) {
-            return data;
-          }
-          await delay(1000); // Wait for 1 second before retrying
-        } catch (error) {
-          if (retries === maxRetries - 1) {
-            throw new Error("Max retries reached");
-          }
-        }
-      }
-      throw new Error("Failed to fetch data");
-    };
-
-    // Call getData function with the ticketId obtained from fetchOrganisations
-    return await getData(jsonData.ticketId);
-  } catch (error) {
-    console.error("fetching pipeline, Error fetching data:", error);
-    throw error; // Propagate error to the caller
+    
   }
-}
+
 
 export async function putRepository(orgId: string, repositoryName: string) {
   const headers = new Headers();

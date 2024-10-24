@@ -14,12 +14,10 @@ import { Organization, Repository, Resource } from '../../redux/states/apiState'
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { Box, IconButton } from '@mui/material';
 import ResourceUploadButton from './Buttons/ResourceUploadButton';
-import { deleteResource, downloadResource, fetchOrganisation, fetchOrganisationRepositories, fetchOrganisations, fetchPipeline, fetchRepositoryPipelines, fetchRepositoryResources, fetchResource, putPipeline, putRepository } from '../../services/backendAPI';
+import { deleteResource, downloadResource } from '../../services/backendAPI';
 import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
 import AddOrganizationButton from './Buttons/AddOrganizationButton';
-import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 import OperatorUploadButton from './Buttons/OperatorUploadButton';
-import { Padding } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
@@ -69,16 +67,17 @@ export default function PersistentDrawerLeft() {
     <Drawer
       PaperProps={{
         sx: {
-          backgroundColor: '#292929',
-        }
+          backgroundColor: "#292929",
+          zIndex: 10,
+        },
       }}
       sx={{
         width: drawerWidth,
-        position: 'static',
+        position: "static",
         flexGrow: 1,
-        '& .MuiDrawer-paper': {
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
-          boxSizing: 'border-box',
+          boxSizing: "border-box",
         },
       }}
       variant="permanent"
@@ -86,7 +85,7 @@ export default function PersistentDrawerLeft() {
     >
       <Divider />
       {
-        auth?.user?.isAdmin === "true" &&
+        auth?.user?.isAdmin==="true" &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}
@@ -99,71 +98,142 @@ export default function PersistentDrawerLeft() {
           <AddMemberButton />
         </DrawerHeader>
       }
+
       <DrawerHeader>
-        <Typography sx={{ width: '100%', textAlign: 'center' }} variant="h6" noWrap component="div">
+        <Typography
+          sx={{ width: "100%", textAlign: "center" }}
+          variant="h6"
+          noWrap
+          component="div"
+        >
           Organisations
         </Typography>
         <AddOrganizationButton />
       </DrawerHeader>
+
       <List>
         {organizations.map((organization) => (
-          <div key={organization.id}>
-            <ListItem sx={{ justifyContent: 'center' }} disablePadding>
-              <p style={{ marginBlock: '0rem', fontSize: '25px' }}>{organization.name}</p>
+          <>
+            <ListItem
+              sx={{ justifyContent: "center" }}
+              key={organization.id}
+              disablePadding
+            >
+              <p style={{ marginBlock: "0rem", fontSize: "25px" }}>
+                {organization.name}
+              </p>
             </ListItem>
-            {repositories.map((repository) => (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                paddingInline: "0.5rem",
+              }}
+            ></div>
+            {repositories.map((repository) =>
               repository.organizationId === organization.id ? (
-                <div key={repository.id}>
-                  <ListItem sx={{ paddingInline: '5px' }}>
-                    <p style={{ padding: '0', fontSize: '25px', marginBlock: '10px' }}>{repository.name}</p>
+                <>
+                  <ListItem key={repository.id} sx={{ paddingInline: "5px" }}>
+                    <p
+                      style={{
+                        padding: "0",
+                        fontSize: "25px",
+                        marginBlock: "10px",
+                      }}
+                    >
+                      {repository.name}
+                    </p>
                   </ListItem>
 
-                  <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
-                    <p style={{ fontSize: '0.9rem' }}>Resources</p>
-                    <Box sx={{ marginLeft: 'auto' }}>
-                      <ResourceUploadButton orgId={repository.organizationId} repId={repository.id} />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingInline: "0.5rem",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.9rem" }}>Resources</p>
+                    <Box sx={{ marginLeft: "auto" }}>
+                      <ResourceUploadButton
+                        orgId={repository.organizationId}
+                        repId={repository.id}
+                      />
                     </Box>
                   </div>
-                  {resources.map((resource) => (
-                    resource.repositoryId === repository.id && resource.type !== "operator" ? (
+                  {resources.map((resource) =>
+                    resource.repositoryId === repository.id &&
+                      resource.type !== "operator" ? (
                       <ListItem key={resource.id} disablePadding>
-                        <ListItemButton sx={{ paddingBlock: 0 }} onClick={() => handleDownload(resource)}>
-                          <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
+                        <ListItemButton
+                          sx={{ paddingBlock: 0 }}
+                          onClick={(_) => handleDownload(resource)}
+                        >
+                          <ListItemText
+                            secondary={resource.name}
+                            secondaryTypographyProps={{ fontSize: "0.8rem" }}
+                          />
                         </ListItemButton>
-                      {/* Add delete button */}
                         <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(resource)}>
                           <DeleteIcon />
                         </IconButton>
                       </ListItem>
-                    ) : null
-                  ))}
+                    ) : (
+                      ""
+                    )
+                  )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
-                    <p style={{ fontSize: '0.9rem' }}>Operators</p>
-                    <Box sx={{ marginLeft: 'auto' }}>
-                      <OperatorUploadButton orgId={repository.organizationId} repId={repository.id} />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingInline: "0.5rem",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.9rem" }}>Operators</p>
+                    <Box sx={{ marginLeft: "auto" }}>
+                      <OperatorUploadButton
+                        orgId={repository.organizationId}
+                        repId={repository.id}
+                      />
                     </Box>
                   </div>
-                  {resources.map((resource) => (
-                    resource.repositoryId === repository.id && resource.type === "operator" ? (
+                  {resources.map((resource) =>
+                    resource.repositoryId === repository.id &&
+                      resource.type === "operator" ? (
                       <ListItem key={resource.id} disablePadding>
                         <ListItemButton sx={{ paddingBlock: 0 }}>
-                          <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
+                          <ListItemText
+                            secondary={resource.name}
+                            secondaryTypographyProps={{ fontSize: "0.8rem" }}
+                          />
                         </ListItemButton>
                       </ListItem>
-                    ) : null
-                  ))}
-                </div>
-              ) : null
-            ))}
-            <ListItem sx={{ justifyContent: 'center' }}>
-              <Box sx={{ width: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                    ) : (
+                      ""
+                    )
+                  )}
+                </>
+              ) : (
+                ""
+              )
+            )}
+            <ListItem sx={{ justifyContent: "center" }}>
+              <Box
+                sx={{
+                  width: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <CreateRepositoryButton orgId={organization.id} />
               </Box>
             </ListItem>
-          </div>
+          </>
         ))}
       </List>
+      <LogoutButton />
     </Drawer>
   );
 }
