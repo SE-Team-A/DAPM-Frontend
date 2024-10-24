@@ -24,6 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
+import React from 'react';
 
 const drawerWidth = 240;
 
@@ -31,45 +32,38 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
   justifyContent: 'flex-end',
 }));
 
 export default function PersistentDrawerLeft() {
-  const dispatch = useAppDispatch()
-  const organizations: Organization[] = useAppSelector(getOrganizations)
-  const repositories: Repository[] = useAppSelector(getRepositories)
-  const resources = useSelector(getResources)
+  const dispatch = useAppDispatch();
+  const organizations: Organization[] = useAppSelector(getOrganizations);
+  const repositories: Repository[] = useAppSelector(getRepositories);
+  const resources = useSelector(getResources);
   const auth = useAuth();
 
   useEffect(() => {
-    dispatch(organizationThunk())
-    dispatch(repositoryThunk(organizations));
-    dispatch(resourceThunk({ organizations, repositories }));
+    dispatch(organizationThunk());
+    if (organizations.length) {
+      dispatch(repositoryThunk(organizations));
+      dispatch(resourceThunk({ organizations, repositories }));
+    }
+  }, [dispatch, organizations, repositories]);
 
-  }, [dispatch]);
-
-  //Ayat Al Rifai
   const handleDelete = async (resource: Resource) => {
     console.log('Deleting resource:', resource);
-    // Filter out the resource to be deleted
-    const updatedResources = resources.filter((res) => res.id !== resource.id);
-  
-    // Update the local state to remove the resource from the UI
     await deleteResource(resource.organizationId, resource.repositoryId, resource.id);
   };
 
-
   const handleDownload = async (resource: Resource) => {
-    const response = await downloadResource(resource.organizationId, resource.repositoryId, resource.id) 
-    await downloadReadableStream(response.url, resource.name)
+    const response = await downloadResource(resource.organizationId, resource.repositoryId, resource.id);
+    await downloadReadableStream(response.url);
+  };
+
+  async function downloadReadableStream(url: string) {
+    window.open(url, '_blank');
   }
-
-async function downloadReadableStream(url: string, fileName: string) {
-
-  window.open(url, '_blank');
-}
 
   return (
     <Drawer
@@ -92,7 +86,7 @@ async function downloadReadableStream(url: string, fileName: string) {
     >
       <Divider />
       {
-        auth?.user?.isAdmin==="true" &&
+        auth?.user?.isAdmin === "true" &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}
@@ -113,61 +107,61 @@ async function downloadReadableStream(url: string, fileName: string) {
       </DrawerHeader>
       <List>
         {organizations.map((organization) => (
-          <>
-            <ListItem sx={{ justifyContent: 'center' }} key={organization.id} disablePadding>
-              <p style={{marginBlock: '0rem', fontSize: '25px'}}>{organization.name}</p>
+          <div key={organization.id}>
+            <ListItem sx={{ justifyContent: 'center' }} disablePadding>
+              <p style={{ marginBlock: '0rem', fontSize: '25px' }}>{organization.name}</p>
             </ListItem>
-            <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
-            </div>
-            {repositories.map((repository) => (repository.organizationId === organization.id ?
-              <>
-                <ListItem key={repository.id} sx={{paddingInline: '5px'}}>
-                  <p style={{padding: '0', fontSize: '25px', marginBlock: '10px'}}>{repository.name}</p>
-                </ListItem>
+            {repositories.map((repository) => (
+              repository.organizationId === organization.id ? (
+                <div key={repository.id}>
+                  <ListItem sx={{ paddingInline: '5px' }}>
+                    <p style={{ padding: '0', fontSize: '25px', marginBlock: '10px' }}>{repository.name}</p>
+                  </ListItem>
 
-                <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
-                  <p style={{fontSize: '0.9rem' }}>Resources</p>
-                  <Box sx={{ marginLeft: 'auto' }}>
-                    <ResourceUploadButton orgId={repository.organizationId} repId={repository.id} />
-                  </Box>
-                </div>
-                {resources.map((resource) => (resource.repositoryId === repository.id && resource.type !== "operator" ?
-                  <>
-                    <ListItem key={resource.id} disablePadding>
-                      <ListItemButton sx={{ paddingBlock: 0 }} onClick={_ => handleDownload(resource)}>
-                        <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
-                      </ListItemButton>
+                  <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
+                    <p style={{ fontSize: '0.9rem' }}>Resources</p>
+                    <Box sx={{ marginLeft: 'auto' }}>
+                      <ResourceUploadButton orgId={repository.organizationId} repId={repository.id} />
+                    </Box>
+                  </div>
+                  {resources.map((resource) => (
+                    resource.repositoryId === repository.id && resource.type !== "operator" ? (
+                      <ListItem key={resource.id} disablePadding>
+                        <ListItemButton sx={{ paddingBlock: 0 }} onClick={() => handleDownload(resource)}>
+                          <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
+                        </ListItemButton>
                       {/* Add delete button */}
-                      <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(resource)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </ListItem>
-                  </> : ""
-                ))}
+                        <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(resource)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItem>
+                    ) : null
+                  ))}
 
-                <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
-                  <p style={{fontSize: '0.9rem'}}>Operators</p>
-                  <Box sx={{ marginLeft: 'auto' }}>
-                    <OperatorUploadButton orgId={repository.organizationId} repId={repository.id} />
-                  </Box>
+                  <div style={{ display: 'flex', alignItems: 'center', paddingInline: '0.5rem' }}>
+                    <p style={{ fontSize: '0.9rem' }}>Operators</p>
+                    <Box sx={{ marginLeft: 'auto' }}>
+                      <OperatorUploadButton orgId={repository.organizationId} repId={repository.id} />
+                    </Box>
+                  </div>
+                  {resources.map((resource) => (
+                    resource.repositoryId === repository.id && resource.type === "operator" ? (
+                      <ListItem key={resource.id} disablePadding>
+                        <ListItemButton sx={{ paddingBlock: 0 }}>
+                          <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
+                        </ListItemButton>
+                      </ListItem>
+                    ) : null
+                  ))}
                 </div>
-                {resources.map((resource) => (resource.repositoryId === repository.id && resource.type === "operator" ?
-                  <>
-                    <ListItem key={resource.id} disablePadding>
-                      <ListItemButton sx={{ paddingBlock: 0 }}>
-                        <ListItemText secondary={resource.name} secondaryTypographyProps={{ fontSize: "0.8rem" }} />
-                      </ListItemButton>
-                    </ListItem>
-                  </> : ""
-                ))}
-              </> : ""
+              ) : null
             ))}
             <ListItem sx={{ justifyContent: 'center' }}>
               <Box sx={{ width: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <CreateRepositoryButton orgId={organization.id} />
               </Box>
             </ListItem>
-          </>
+          </div>
         ))}
       </List>
     </Drawer>
