@@ -829,14 +829,15 @@ export async function downloadResource(
 // Define the API function to "delete" (update) a resource with a PUT request
 //Ayat Al Rifai
 export async function deleteResource(orgId: string, repositoryId: string, resourceId: string): Promise<Response> {
-    const headers = new Headers()
-    headers.append("Authorization", `Bearer ${token}`);
+   // const headers = new Headers()
+   // headers.append("Authorization", `Bearer ${token}`);
     const response01 = (`http://` + path + `/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`);
     try {
         const response = await fetch(response01, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
          /*   body: JSON.stringify({
                 isDeleted: true,  
