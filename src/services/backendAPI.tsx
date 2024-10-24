@@ -341,20 +341,62 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
   }
 }
 
-export async function fetchPipeline(
-  orgId: string,
-  repId: string,
-  pipId: string,
-) {
-  try {
-    const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`,
-      { headers },
-    );
-    if (!response.ok) {
-      throw new Error("fetching pipeline, Network response was not ok");
+/**
+ * Author:
+ * - Raihanullah Mehran
+ *
+ * Description:
+ * This method fetches the pipelines from the database.
+ */
+export async function fetchRepositoryPipelineList(orgId: string, repId: string) {
+    try {
+      const response = await fetch(`http://` + path + `/Organizations/${orgId}/repositories/${repId}/pipeline`, { headers });
+      if (!response.ok) {
+        throw new Error("fetching pipelines, Network response was not ok");
+      }
+      const jsonData = await response.json();
+  
+      return jsonData.result?.pipelines;
+    } catch (error) {
+      console.error("fetching pipelines, Error fetching data:", error);
+      throw error;
+    }
+  }
+
+export async function fetchPipeline(orgId: string, repId: string, pipId: string) {
+    try {
+        const response = await fetch(`http://` + path + `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`, { headers });
+        if (!response.ok) {
+            throw new Error('fetching pipeline, Network response was not ok');
+        }
+        const jsonData = await response.json();
+
+        // Fetch additional data recursively
+        const getData = async (ticketId: string): Promise<any> => {
+            const maxRetries = 10;
+            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+            for (let retries = 0; retries < maxRetries; retries++) {
+                try {
+                    const data = await fetchStatus(ticketId);
+                    if (data.status) {
+                        return data;
+                    }
+                    await delay(1000); // Wait for 1 second before retrying
+                } catch (error) {
+                    if (retries === maxRetries - 1) {
+                        throw new Error('Max retries reached');
+                    }
+                }
+            }
+            throw new Error('Failed to fetch data');
+        };
+
+        // Call getData function with the ticketId obtained from fetchOrganisations
+        return await getData(jsonData.ticketId);
+    } catch (error) {
+        console.error('fetching pipeline, Error fetching data:', error);
+        throw error; // Propagate error to the caller
     }
     const jsonData = await response.json();
 
