@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Raihanullah Mehran
+ *
+ * Description:
+ * This component do the logout functionality.
+ */
+
 import { Box } from "@mui/material";
 import { useAuth } from "../../auth/authProvider";
 import LogoutIcon from "@mui/icons-material/Logout";
