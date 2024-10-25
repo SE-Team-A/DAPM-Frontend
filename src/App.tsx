@@ -22,6 +22,8 @@ import { loadState, saveState } from "./redux/browser-storage";
 import AuthProvider from "./auth/authProvider";
 import PrivateRoute from "./router/privateRoute";
 import Login from "./routes/LoginPage";
+import PrivateAdminRoute from "./router/privateAdminRoute";
+import Dashboard from "./routes/DashboardPage";
 
 // Configure redux-persist
 const persistConfig = {
@@ -67,6 +69,10 @@ const router = createBrowserRouter([
     path: "/pipeline",
     element: <PipelineComposer />,
   },
+  {
+    path: "/admin-dashboard",
+    element: <Dashboard />,
+  },
 ]);
 
 export default function App() {
@@ -82,6 +88,9 @@ export default function App() {
                 <Route element={<PrivateRoute />}>
                   <Route path="/pipeline" element={<PipelineComposer />} />
                   <Route path="/" element={<UserPage />} />
+                  <Route element={<PrivateAdminRoute />}>
+                    <Route path="/admin-dashboard" element={<Dashboard />} />
+                  </Route>
                 </Route>
               </Routes>
             </Provider>
