@@ -14,6 +14,11 @@ const takeSnapshot = (state: PipelineState) => {
   activePipeline?.history?.past?.push({nodes: activePipeline.pipeline.nodes, edges: activePipeline.pipeline.edges})
 }
 
+interface ImageData {
+  id: string;
+  imgData: string;
+}
+
 const pipelineSlice = createSlice({
   name: 'pipelines',
   initialState: initialState,
@@ -39,6 +44,14 @@ const pipelineSlice = createSlice({
       var pipeline = state.pipelines.find(pipeline => pipeline.id === payload.id)
       if (!pipeline) return
       pipeline.imgData = payload.imgData
+    },
+    setMultipleImageData: (state, { payload }: PayloadAction<ImageData[]>) => {
+      payload.forEach(({ id, imgData }) => {
+        const pipeline = state.pipelines.find(pipeline => pipeline.id === id);
+        if (pipeline) {
+          pipeline.imgData = imgData;
+        }
+      });
     },
 
     // actions for undo and redo
@@ -204,7 +217,8 @@ export const {
   setPipelines,
   addNewPipeline, 
   setActivePipeline, 
-  setImageData, 
+  setImageData,
+  setMultipleImageData,
   
   // actions for undo and redo
   undo,
