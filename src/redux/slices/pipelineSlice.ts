@@ -14,10 +14,25 @@ const takeSnapshot = (state: PipelineState) => {
   activePipeline?.history?.past?.push({nodes: activePipeline.pipeline.nodes, edges: activePipeline.pipeline.edges})
 }
 
+interface ImageData {
+  id: string;
+  imgData: string;
+}
+
 const pipelineSlice = createSlice({
   name: 'pipelines',
   initialState: initialState,
   reducers: {
+    /**
+    * Author:
+    * - Raihanullah Mehran
+    *
+    * Description:
+    * This setPipelines method stores the pipelines fetched from database.
+    */
+    setPipelines: (state, { payload }: PayloadAction<PipelineData[]>) => {
+      state.pipelines = payload;
+    },
     addNewPipeline: (state, { payload }: PayloadAction<{ id: string, flowData: NodeState }>) => {
       state.pipelines.push({ id: payload.id, name: 'unnamed pipeline', pipeline: payload.flowData, history: { past: [], future: []}, imgData: '' } as PipelineData)
       state.activePipelineId = payload.id
@@ -29,6 +44,14 @@ const pipelineSlice = createSlice({
       var pipeline = state.pipelines.find(pipeline => pipeline.id === payload.id)
       if (!pipeline) return
       pipeline.imgData = payload.imgData
+    },
+    setMultipleImageData: (state, { payload }: PayloadAction<ImageData[]>) => {
+      payload.forEach(({ id, imgData }) => {
+        const pipeline = state.pipelines.find(pipeline => pipeline.id === id);
+        if (pipeline) {
+          pipeline.imgData = imgData;
+        }
+      });
     },
 
     // actions for undo and redo
@@ -191,9 +214,11 @@ const pipelineSlice = createSlice({
 
 export const { 
   //actions for all pipelines
+  setPipelines,
   addNewPipeline, 
   setActivePipeline, 
-  setImageData, 
+  setImageData,
+  setMultipleImageData,
   
   // actions for undo and redo
   undo,
