@@ -52,6 +52,11 @@ To be able to use it the computer has to be connected to DTU Compute's VPN.
 
 #### Release 1
 
-1. Pipeline definition and retrieval
+1. Core functionality
     - The user is now able to add Pipeline definitions using the frontend without exectuing them, the database will store these definitions
     - The Pipeline defintions can be retrieved by the members of the ortganizations they belong to and they can be opened on the frontend
+    - Added delete resources option on sidebar
+
+2. Access control
+    - Added login form and enforced authentication for all users
+    - Created user creation form for 'admin' role users
