@@ -47,3 +47,11 @@ This command will bundle React in production mode and optimize the build for the
 ### Usage
 
 To be able to use it the computer has to be connected to DTU Compute's VPN.
+
+### Changelog
+
+#### Release 1
+
+1. Pipeline definition and retrieval
+    - The user is now able to add Pipeline definitions using the frontend without exectuing them, the database will store these definitions
+    - The Pipeline defintions can be retrieved by the members of the ortganizations they belong to and they can be opened on the frontend
