@@ -2,13 +2,13 @@ import { AppBar, Box, Button, TextField, Toolbar, Typography } from "@mui/materi
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getActiveFlowData, getActivePipeline } from "../../redux/selectors";
+import { getActiveFlowData, getActivePipeline, getPipelines } from "../../redux/selectors";
 import { useState } from "react";
 import { updatePipelineName } from "../../redux/slices/pipelineSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import { Node } from "reactflow";
 import { DataSinkNodeData, DataSourceNodeData, OperatorNodeData, PipelineData } from "../../redux/states/pipelineState";
-import { putCommandStart, putExecution, putPipeline } from "../../services/backendAPI";
+import { editPipeline, putCommandStart, putExecution, putPipeline } from "../../services/backendAPI";
 import { getOrganizations, getRepositories } from "../../redux/selectors/apiSelector";
 import { getHandleId, getNodeId } from "./Flow";
 
@@ -30,6 +30,7 @@ export default function PipelineAppBar() {
   const repositories = useSelector(getRepositories)
 
   const pipelineName = useSelector(getActivePipeline)?.name
+  const pipelineID = useSelector(getActivePipeline)?.id
 
   const setPipelineName = (name: string) => {
     dispatch(updatePipelineName(name))
@@ -130,10 +131,19 @@ export default function PipelineAppBar() {
 
   const savePipeline = async () => {
     const {org, repo, pipeline} = generateJson();
+    console.log(pipelineID);
+    console.log(pipelineName);
 
-    const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
-    console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
+    if (pipelineID?.startsWith('pipeline')){
+      const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
+      console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
+    }
+   else if (pipelineID){
+    const pipelineId = await editPipeline(org.id, repo.id, pipelineID, pipeline);    
+    console.log(`Pipeline with id: ${pipelineId} has been edited successfully!`);
+   }
   };
+  
 
   const deployPipeline = async () => {
     const {org, repo, pipeline} = generateJson();

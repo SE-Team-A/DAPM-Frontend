@@ -90,6 +90,7 @@ export default function AutoGrid() {
       const pipelines = await fetchRepositoryPipelineList(
         selectedOrg.id,
         selectedRepo.id
+    
       );
 
       return pipelines || [];
