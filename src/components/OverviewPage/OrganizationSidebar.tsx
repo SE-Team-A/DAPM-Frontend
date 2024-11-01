@@ -1,28 +1,40 @@
-import { styled } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { getOrganizations, getRepositories, getResources } from '../../redux/selectors/apiSelector';
-import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
-import { Organization, Repository, Resource } from '../../redux/states/apiState';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box, IconButton } from '@mui/material';
-import ResourceUploadButton from './Buttons/ResourceUploadButton';
-import { deleteResource, downloadResource } from '../../services/backendAPI';
-import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
-import AddOrganizationButton from './Buttons/AddOrganizationButton';
-import OperatorUploadButton from './Buttons/OperatorUploadButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from "@mui/material/styles";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import {
+  getOrganizations,
+  getRepositories,
+  getResources,
+} from "../../redux/selectors/apiSelector";
+import {
+  organizationThunk,
+  repositoryThunk,
+  resourceThunk,
+} from "../../redux/slices/apiSlice";
+import {
+  Organization,
+  Repository,
+  Resource,
+} from "../../redux/states/apiState";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { Box, IconButton } from "@mui/material";
+import ResourceUploadButton from "./Buttons/ResourceUploadButton";
+import { deleteResource, downloadResource } from "../../services/backendAPI";
+import CreateRepositoryButton from "./Buttons/CreateRepositoryButton";
+import AddOrganizationButton from "./Buttons/AddOrganizationButton";
+import OperatorUploadButton from "./Buttons/OperatorUploadButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
-import React from 'react';
+import { HomePage } from "./HomePage";
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -42,17 +54,21 @@ export default function PersistentDrawerLeft() {
   const auth = useAuth();
 
   useEffect(() => {
-      dispatch(organizationThunk());
-      dispatch(repositoryThunk(organizations));
-      dispatch(resourceThunk({ organizations, repositories }));
+    dispatch(organizationThunk());
+    dispatch(repositoryThunk(organizations));
+    dispatch(resourceThunk({ organizations, repositories }));
   }, [dispatch]);
 
   const handleDelete = async (resource: Resource) => {
-    console.log('Deleting resource:', resource);
-    await deleteResource(resource.organizationId, resource.repositoryId, resource.id);
+    console.log("Deleting resource:", resource);
+    await deleteResource(
+      resource.organizationId,
+      resource.repositoryId,
+      resource.id
+    );
   };
 
- const handleDownload = async (resource: Resource) => {
+  const handleDownload = async (resource: Resource) => {
     const response = await downloadResource(
       resource.organizationId,
       resource.repositoryId,
@@ -86,8 +102,9 @@ export default function PersistentDrawerLeft() {
       anchor="left"
     >
       <Divider />
-      {
-        auth?.user?.isAdmin==="true" &&
+      <HomePage />
+      <Divider />
+      {auth?.user?.isAdmin === "true" && (
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}
@@ -99,7 +116,7 @@ export default function PersistentDrawerLeft() {
           </Typography>
           <AddMemberButton />
         </DrawerHeader>
-      }
+      )}
 
       <DrawerHeader>
         <Typography
@@ -164,7 +181,7 @@ export default function PersistentDrawerLeft() {
                   </div>
                   {resources.map((resource) =>
                     resource.repositoryId === repository.id &&
-                      resource.type !== "operator" ? (
+                    resource.type !== "operator" ? (
                       <ListItem key={resource.id} disablePadding>
                         <ListItemButton
                           sx={{ paddingBlock: 0 }}
@@ -175,7 +192,11 @@ export default function PersistentDrawerLeft() {
                             secondaryTypographyProps={{ fontSize: "0.8rem" }}
                           />
                         </ListItemButton>
-                        <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(resource)}>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDelete(resource)}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </ListItem>
@@ -201,7 +222,7 @@ export default function PersistentDrawerLeft() {
                   </div>
                   {resources.map((resource) =>
                     resource.repositoryId === repository.id &&
-                      resource.type === "operator" ? (
+                    resource.type === "operator" ? (
                       <ListItem key={resource.id} disablePadding>
                         <ListItemButton sx={{ paddingBlock: 0 }}>
                           <ListItemText
