@@ -9,19 +9,18 @@ import rootReducer from "./redux/slices";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import {
-  RouterProvider,
   createBrowserRouter,
-  createHashRouter,
   BrowserRouter as Router,
   Route,
   Routes,
 } from "react-router-dom";
 import PipelineComposer from "./routes/PipeLineComposer";
 import UserPage from "./routes/OverviewPage";
-import { loadState, saveState } from "./redux/browser-storage";
+import { loadState } from "./redux/browser-storage";
 import AuthProvider from "./auth/authProvider";
 import PrivateRoute from "./router/privateRoute";
 import Login from "./routes/LoginPage";
+import { Toaster } from "react-hot-toast";
 import PrivateAdminRoute from "./router/privateAdminRoute";
 import Dashboard from "./routes/DashboardPage";
 
@@ -95,6 +94,7 @@ export default function App() {
               </Routes>
             </Provider>
           </div>
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </Router>
     </ThemeProvider>
