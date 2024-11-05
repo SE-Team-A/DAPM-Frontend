@@ -145,8 +145,10 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup })
                                 value={formik.values.role}
                                 aria-label="Project status">
                                 {/* <option value=""></option> */}
-                                <option value="user">User</option>
+                                <option value="superadmin">Super Admin</option>
                                 <option value="admin">Admin</option>
+                                <option value="user">User</option>
+                                <option value="guest">Guest</option>
                             </select>
                     </div>
                     {formik.touched.role && formik.errors.role ? (
