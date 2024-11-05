@@ -12,7 +12,7 @@ import { getOrganizations, getRepositories, getResources } from '../../redux/sel
 import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
 import { Organization, Repository, Resource } from '../../redux/states/apiState';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box, IconButton } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
 import ResourceUploadButton from './Buttons/ResourceUploadButton';
 import { deleteResource, downloadResource } from '../../services/backendAPI';
 import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
@@ -23,6 +23,7 @@ import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -40,6 +41,7 @@ export default function PersistentDrawerLeft() {
   const repositories: Repository[] = useAppSelector(getRepositories);
   const resources = useSelector(getResources);
   const auth = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
       dispatch(organizationThunk());
@@ -95,9 +97,9 @@ export default function PersistentDrawerLeft() {
             noWrap
             component="div"
           >
-            Add Member
+            Dashboard
           </Typography>
-          <AddMemberButton />
+          <Button onClick={()=>{navigate("/admin-dashboard")}}  sx={{ backgroundColor: "gray", padding: "1px", color: "black" }} >{">"}</Button>
         </DrawerHeader>
       }
 
