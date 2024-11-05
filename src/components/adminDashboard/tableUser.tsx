@@ -1,11 +1,13 @@
 import { SetStateAction, useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useUsers } from "../../auth/usersProvider";
+import DeleteMemberPopup from "./deletePopup";
 export default function TableUsers() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [currentUsers, setCurrentUsers] = useState<{ username: string; role: string }[]>([]);
     const [totalPages, setTotalPages] = useState(1);
+    const [openDeleteMemberPopup, setOpenDeleteMemberPopup] = useState(false);
     const user=useUsers();
 
     const users = [
@@ -125,7 +127,7 @@ export default function TableUsers() {
                                 user.role === "superadmin" ? (
                                     <div className="text-red-500">Super Admin</div>
                                 ) : (
-                                    <DeleteIcon className="cursor-pointer hover:text-red-500"/>
+                                    <DeleteIcon onClick={()=>{setOpenDeleteMemberPopup(true)}} className="cursor-pointer hover:text-red-500"/>
                                 )
                             }
                             </div>
@@ -147,6 +149,8 @@ export default function TableUsers() {
                     disabled={currentPage === totalPages}
                     className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white ml-2 text-sm ${currentPage === totalPages ? "bg-slate-400" : ""}`}>Next</button>
             </div>
+
+            <DeleteMemberPopup openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
         </div>
     );
 }
