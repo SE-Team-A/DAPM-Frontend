@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Raihanullah Mehran s233837
+ *
+ * Description:
+ * Home Page: Consist of Logo and name of the software, and also functions as a go back button
+ */
+
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 

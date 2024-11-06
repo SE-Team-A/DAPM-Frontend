@@ -2,31 +2,19 @@
  * Author:
  * - Mahdi El Dirani s233031
  * - Hussein Dirani s223518
- * 
+ * - Raihanullah Mehran s233837
+ *
  * Description:
  * Sidebar Page
  */
-import { styled } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { getOrganizations, getRepositories, getResources } from '../../redux/selectors/apiSelector';
-import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
-import { Organization, Repository, Resource } from '../../redux/states/apiState';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box, IconButton } from '@mui/material';
-import { deleteResource, downloadResource } from '../../services/backendAPI';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from "@mui/material/styles";
+import Drawer from "@mui/material/Drawer";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import AddMemberButton from "../createUser/addMemberButton";
 import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
-import React from 'react';
+import { HomePage } from "../OverviewPage/HomePage";
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -39,7 +27,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function AdminDashboardDrawerLeft() {
-
   const auth = useAuth();
   return (
     <Drawer
@@ -62,8 +49,9 @@ export default function AdminDashboardDrawerLeft() {
       anchor="left"
     >
       <Divider />
-      {
-        (auth?.user?.role==="Admin"||"SuperAdmin") &&
+      <HomePage />
+      <Divider />
+      {(auth?.user?.role === "Admin" || "SuperAdmin") && (
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}
@@ -75,11 +63,7 @@ export default function AdminDashboardDrawerLeft() {
           </Typography>
           <AddMemberButton />
         </DrawerHeader>
-      }
-
-
-
-
+      )}
       <LogoutButton />
     </Drawer>
   );

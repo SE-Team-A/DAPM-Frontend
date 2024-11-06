@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Raihanullah Mehran s233837
+ *
+ * Description:
+ * Three dotted menu on each pipeline
+ */
+
 import * as React from "react";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
