@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Mahdi El Dirani s233031
+ * - Hussein Dirani s223518
+ * 
+ * Description:
+ * Sidebar Page
+ */
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -55,7 +63,7 @@ export default function AdminDashboardDrawerLeft() {
     >
       <Divider />
       {
-        auth?.user?.isAdmin==="true" &&
+        (auth?.user?.role==="Admin"||"SuperAdmin") &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}

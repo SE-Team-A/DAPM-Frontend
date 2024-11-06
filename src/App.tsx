@@ -22,7 +22,8 @@ import PrivateRoute from "./router/privateRoute";
 import Login from "./routes/LoginPage";
 import { Toaster } from "react-hot-toast";
 import PrivateAdminRoute from "./router/privateAdminRoute";
-import Dashboard from "./routes/DashboardPage";
+import AdminDashboard from "./routes/DashboardPage";
+import UserProvider from "./auth/usersProvider";
 
 // Configure redux-persist
 const persistConfig = {
@@ -70,7 +71,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin-dashboard",
-    element: <Dashboard />,
+    element: <AdminDashboard />,
   },
 ]);
 
@@ -79,6 +80,7 @@ export default function App() {
     <ThemeProvider theme={darkTheme}>
       <Router>
         <AuthProvider>
+          <UserProvider>
           <div className="App">
             <Provider store={store}>
               {/* <RouterProvider router={router} /> */}
@@ -88,12 +90,13 @@ export default function App() {
                   <Route path="/pipeline" element={<PipelineComposer />} />
                   <Route path="/" element={<UserPage />} />
                   <Route element={<PrivateAdminRoute />}>
-                    <Route path="/admin-dashboard" element={<Dashboard />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   </Route>
                 </Route>
               </Routes>
             </Provider>
           </div>
+          </UserProvider>
           <Toaster position="bottom-right" />
         </AuthProvider>
       </Router>
