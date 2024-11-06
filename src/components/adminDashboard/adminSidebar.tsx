@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Mahdi El Dirani s233031
+ * - Hussein Dirani s223518
+ * 
+ * Description:
+ * Sidebar Page
+ */
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';

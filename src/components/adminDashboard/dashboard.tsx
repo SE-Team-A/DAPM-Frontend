@@ -1,3 +1,10 @@
+/**
+ * Author:
+ * - Hussein Dirani s223518
+ * 
+ * Description:
+ * Dashboard Page
+ */
 import { Tab, Table } from "@mui/material";
 import { useAuth } from "../../auth/authProvider";
 import TableUsers from "./tableUser";

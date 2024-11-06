@@ -1,7 +1,7 @@
 /**
  * Authors:
- * - Mahdi El Dirani 
- * - Hussein Dirani
+ * - Mahdi El Dirani s233031
+ * - Hussein Dirani  s223518
  * 
  * Description:
  * This component manages authentication state, including login and signup actions, 
@@ -155,7 +155,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             if (res) {
                 const ticketId = res.ticketId;
                 // setLoadingRegister(true)
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 2000));
                 // setLoadingRegister(false)
                 const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
                     method: "GET",

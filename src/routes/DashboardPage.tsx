@@ -3,7 +3,7 @@
  * - Mahdi Dirani
  * 
  * Description:
- * Login Page
+ * Dashboard Page
  */
 import { Box } from "@mui/material";
 import { useAuth } from "../auth/authProvider";

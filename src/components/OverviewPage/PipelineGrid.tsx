@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNewPipeline,
-  setImageData,
   setMultipleImageData,
   setPipelines,
 } from "../../redux/slices/pipelineSlice";
@@ -19,14 +18,14 @@ import FlowDiagram from "./ImageGeneration/FlowDiagram";
 import { toPng } from "html-to-image";
 import { getNodesBounds, getViewportForBounds } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   getOrganizations,
   getRepositories,
 } from "../../redux/selectors/apiSelector";
 import { fetchRepositoryPipelineList } from "../../services/backendAPI";
 import { Spinner } from "../common/Spinner";
-import ReactFlow, { Edge, Handle, Node } from "reactflow";
+import { Edge, Node } from "reactflow";
 import throttle from "lodash/throttle";
 import { Root } from "react-dom/client";
 
@@ -73,23 +72,23 @@ export default function AutoGrid() {
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
 
-  const selectedOrg = useMemo(() => organizations[0], [organizations]);
-  const selectedRepo = useMemo(
-    () =>
-      repositories.filter((repo) => repo.organizationId === selectedOrg.id)[0],
-    [repositories, selectedOrg]
-  );
+  // const selectedOrg = useMemo(() => organizations[0], [organizations]);
+  // const selectedRepo = useMemo(
+  //   () =>
+  //     repositories.filter((repo) => repo.organizationId === selectedOrg.id)[0],
+  //   [repositories, selectedOrg]
+  // );
 
   const fetcDbPipelines = async () => {
     try {
-      if (!selectedRepo) {
-        console.error("No repository found for the selected organization.");
-        return;
-      }
+      // if (!selectedRepo) {
+      //   console.error("No repository found for the selected organization.");
+      //   return;
+      // }
 
       const pipelines = await fetchRepositoryPipelineList(
-        selectedOrg.id,
-        selectedRepo.id
+        "d87bc490-828f-46c8-aa44-ded7729eaa82", // selectedOrg.id,
+        "fa6cf45e-b9f5-4dee-82b3-64fc1957a8fe" // selectedRepo.id
       );
 
       return pipelines || [];
@@ -122,7 +121,7 @@ export default function AutoGrid() {
     };
 
     updatePipelines();
-  }, []);
+  }, [useSelector(getPipelines)]);
 
   const createNewPipeline = () => {
     dispatch(
@@ -135,67 +134,6 @@ export default function AutoGrid() {
       navigate("/pipeline");
     }
   };
-
-  // pipelines.map(({ pipeline: flowData, id, name }) => {
-  //   const nodes = flowData.nodes;
-  //   const edges = flowData.edges;
-  //   const pipelineId = id;
-  //   const container = document.createElement("div");
-  //   container.style.position = "absolute";
-  //   container.style.top = "-10000px";
-  //   container.style.width = "800px";
-  //   container.style.height = "600px";
-  //   container.id = pipelineId;
-
-  //   document.body.appendChild(container);
-
-  //   const root = createRoot(container);
-  //   root.render(<FlowDiagram nodes={nodes} edges={edges} />);
-
-  //   setTimeout(() => {
-  //     const width = 800;
-  //     const height = 600;
-
-  //     const nodesBounds = getNodesBounds(nodes!);
-  //     const { x, y, zoom } = getViewportForBounds(
-  //       nodesBounds,
-  //       width,
-  //       height,
-  //       0.5,
-  //       2,
-  //       1
-  //     );
-
-  //     const validPipelineId = CSS.escape(pipelineId);
-
-  //     const element = document.querySelector(
-  //       `#${validPipelineId} .react-flow__viewport`
-  //     ) as HTMLElement;
-
-  //     if (element) {
-  //       toPng(element, {
-  //         backgroundColor: "#333",
-  //         width: width,
-  //         height: height,
-  //         style: {
-  //           width: `${width}px`,
-  //           height: `${height}px`,
-  //           transform: `translate(${x}px, ${y}px) scale(${zoom})`,
-  //         },
-  //       })
-  //         .then((dataUrl) => {
-  //           dispatch(setImageData({ id: pipelineId, imgData: dataUrl }));
-  //           document.body.removeChild(container);
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error generating PNG:", error);
-  //           document.body.removeChild(container);
-  //         });
-  //     } else {
-  //       console.error(`Element not found for pipeline: ${pipelineId}`);
-  //     }
-  //   }, 1000);
-  // });
 
   // Helper to retry finding the element with a delay (retry for 500ms with small intervals)
   const waitForElement = async (
@@ -313,6 +251,13 @@ export default function AutoGrid() {
     }
   }, [pipelines, dispatch]);
 
+  const handlePipelineDelete = (deletedPipelineId: string) => {
+    const updatedPipelines = pipelines.filter(
+      (pipeline) => pipeline.id !== deletedPipelineId
+    );
+    dispatch(setPipelines(updatedPipelines));
+  };
+
   return (
     <>
       <Box sx={{ flexGrow: 1, flexBasis: "100%" }}>
@@ -342,7 +287,10 @@ export default function AutoGrid() {
                     <PipelineCard
                       id={id}
                       name={name}
+                      orgId={"id"}
+                      repoId={"id"}
                       imgData={imgData}
+                      onDelete={handlePipelineDelete}
                     ></PipelineCard>
                   </Grid>
                 ))}

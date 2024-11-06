@@ -24,6 +24,7 @@ import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HomePage } from "./HomePage";
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -73,21 +74,25 @@ export default function PersistentDrawerLeft() {
         sx: {
           backgroundColor: "#292929",
           zIndex: 10,
+          overflowX: "hidden",
         },
       }}
       sx={{
         width: drawerWidth,
         position: "static",
         flexGrow: 1,
+        overflowX: "hidden",
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
+          overflowX: "hidden", // Prevent horizontal scrollbar
         },
       }}
       variant="permanent"
       anchor="left"
     >
       <Divider />
+      <HomePage />
       {
         (auth?.user?.role==="Admin"||auth?.user?.role==="SuperAdmin") &&
         <DrawerHeader>

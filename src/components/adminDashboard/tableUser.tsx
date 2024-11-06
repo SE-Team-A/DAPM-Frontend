@@ -1,3 +1,11 @@
+/**
+ * Author:
+ * - Mahdi Dirani s233031
+ * 
+ * Description:
+ * Users Table
+ */
+
 import { SetStateAction, useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useUsers } from "../../auth/usersProvider";
