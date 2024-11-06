@@ -2,94 +2,92 @@ import { SetStateAction, useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useUsers } from "../../auth/usersProvider";
 import DeleteMemberPopup from "./deletePopup";
+import { useAuth } from "../../auth/authProvider";
 export default function TableUsers() {
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentUsers, setCurrentUsers] = useState<{ username: string; role: string }[]>([]);
+    const [currentUsers, setCurrentUsers] = useState<{ id: string; userName: string; role: string }[]>([]);
     const [totalPages, setTotalPages] = useState(1);
     const [openDeleteMemberPopup, setOpenDeleteMemberPopup] = useState(false);
-    const user=useUsers();
+    const userProvider = useUsers();
+    const auth = useAuth();
 
-    const users = [
-        {
-            username: "user1",
-            role: "admin"
-        },
-        {
-            username: "user2",
-            role: "user"
-        },
-        {
-            username: "user3",
-            role: "admin"
-        },
-        {
-            username: "user4",
-            role: "user"
-        },
-        {
-            username: "user5",
-            role: "admin"
-        },
-        {
-            username: "user6",
-            role: "user"
-        },
-        {
-            username: "user7",
-            role: "admin"
-        },
-        {
-            username: "user8",
-            role: "user"
-        },
-        {
-            username: "user9",
-            role: "admin"
-        },
-        {
-            username: "user10",
-            role: "user"
-        },
-        {
-            username: "user11",
-            role: "admin"
-        },
-        {
-            username: "user12",
-            role: "user"
-        },
-        {
-            username: "user13",
-            role: "admin"
-        },
-        {
-            username: "user14",
-            role: "user"
-        },
-        {
-            username: "user15",
-            role: "superadmin"
-        },
 
-    ]
+    useEffect(() => {
+
+        const getUsers = async () => {
+            try {
+                const response = await fetch("http://localhost:5281/authentication/users", {
+                    method: "GET",
+                    // mode: 'no-cors', 
+                    headers: {
+                        "Content-Type": "application/json",
+
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    }
+                });
+                const res = await response.json();
+                if (res) {
+                    const ticketId = res.ticketId;
+                    // setLoadingRegister(true)
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+                    // setLoadingRegister(false)
+                    const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                        method: "GET",
+                        // mode: 'no-cors', 
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    });
+
+
+                    const statusRes = await statusResponse.json();
+                    console.log("hahahhhahaha")
+                    console.log(statusRes)
+                    console.log("hahahhhahaha")
+                    //this need to be updated
+                    userProvider?.setUsers(statusRes.result.users);
+                    console.log(statusRes.result.users)
+
+                    return statusRes
+
+
+                } else {
+                    throw new Error(res.message || "Get User Failed");
+                }
+            } catch (err) {
+                console.log("Error:", err);
+                return err;
+            }
+        }
+
+        if (auth?.token) {
+            getUsers();
+        }
+
+    }, [auth?.token])
+
+
+
+
     const usersPerPage = 5;
 
 
     useEffect(() => {
-        if (users) {
+        if (userProvider?.users) {
             // Calculate the indices for slicing the tasks array
             const indexOfLastEvent = currentPage * usersPerPage;
             const indexOfFirstEvent = indexOfLastEvent - usersPerPage;
-            const currentUsers = users.slice(indexOfFirstEvent, indexOfLastEvent);
+            const currentUsers = userProvider?.users.slice(indexOfFirstEvent, indexOfLastEvent);
             //set the currentUsers in the currentUsers state
             setCurrentUsers(currentUsers);
             // Calculate total pages
-            const totalPages = Math.ceil(users.length / usersPerPage);
+            const totalPages = Math.ceil(userProvider?.users.length / usersPerPage);
             setTotalPages(totalPages)
         }
         // console.log(tasks, "table")
-    }, [users, currentPage])
+    }, [userProvider?.users, currentPage])
 
 
 
@@ -109,32 +107,44 @@ export default function TableUsers() {
                 <div className="table-body w-full ">
                     {currentUsers.length ? currentUsers.map((user) => (
                         <div className="text-center text-white p-2 table-header flex w-full  table-tr rounded  mt-2 drop-shadow-2xl">
-                            <div className="table-row-item w-1/3">{user.username}</div>
+                            <div className="table-row-item w-1/3">{user.userName}</div>
                             <div className="table-row-item w-1/3">
-                            <select
-                                className="p-0 cursor-pointer select priority-select  bg-transparent border-none focus:border-none text-white"
-                                name="role"
-                                value={user.role}
-                                aria-label="Project status">
-                                <option className="bg-black" value="user">User</option>
-                                <option className="bg-black" value="admin">Admin</option>
-                                <option className="bg-black" value="guest">Guest</option>
-                                <option className="bg-black" value="superadmin">Super Admin</option>
-                            </select>
+                                <select
+                                    className="p-0 cursor-pointer select priority-select  bg-transparent border-none focus:border-none text-white"
+                                    name="role"
+                                    disabled={auth?.user?.role === "Admin" && (user.role === "SuperAdmin" || user.role === "Admin")}
+                                    value={user.role}
+                                    onChange={(e) => {
+                                        userProvider?.updateUser({ id: user.id, role: e.target.value });
+                                    }}
+                                    aria-label="Project status">
+                                    <option disabled={auth?.user?.role !== "SuperAdmin"} className="bg-black" value="SuperAdmin">Super Admin</option>
+                                    <option disabled={auth?.user?.role === "Admin" && user.role === "Admin"} className="bg-black" value="Admin">Admin</option>
+                                    <option className="bg-black" value="User">User</option>
+                                    <option className="bg-black" value="Guest">Guest</option>
+
+                                </select>
                             </div>
                             <div className="table-row-item w-1/3 ">
-                            {
-                                user.role === "superadmin" ? (
-                                    <div className="text-red-500">Super Admin</div>
-                                ) : (
-                                    <DeleteIcon onClick={()=>{setOpenDeleteMemberPopup(true)}} className="cursor-pointer hover:text-red-500"/>
-                                )
-                            }
+                                {
+                                    
+                                    auth?.user?.role === "Admin" && (user.role === "SuperAdmin"|| user.role === "Admin") ? (
+                                        <div className="text-red-500">No permission</div>
+                                    ) : (
+                                        
+                                        <DeleteIcon onClick={() => { setOpenDeleteMemberPopup(true) }} className="cursor-pointer hover:text-red-500" />
+                                    )
+                                }
+                          
                             </div>
+                            <DeleteMemberPopup openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
+                            {/* {   !(auth?.user?.role === "Admin" && (user.role === "Admin"||user.role === "SuperAdmin") )?
+                                : <p className="text-red-400">No permission</p>
+                            } */}
                         </div>
                     )) : (
                         <div className="table-row  w-full">
-                            <div className="table-row-item w-full text-center">No users</div>
+                            <div className="table-row-item w-full text-center">Loading...</div>
                         </div>
                     )}
                 </div>
@@ -150,7 +160,6 @@ export default function TableUsers() {
                     className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white ml-2 text-sm ${currentPage === totalPages ? "bg-slate-400" : ""}`}>Next</button>
             </div>
 
-            <DeleteMemberPopup openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
         </div>
     );
 }

@@ -13,7 +13,7 @@ import Dashboard from "../components/adminDashboard/dashboard";
 export default function AdminDashboard() {
     const user=useAuth();
     console.log("I am token:", user)
-    console.log(user?.user?.isAdmin)
+    // console.log(user?.user?.role)
     return (
         <div>
             <Box sx={{display: 'flex'}}>

@@ -55,7 +55,7 @@ export default function AdminDashboardDrawerLeft() {
     >
       <Divider />
       {
-        auth?.user?.isAdmin==="true" &&
+        (auth?.user?.role==="Admin"||"SuperAdmin") &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}

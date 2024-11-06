@@ -14,18 +14,16 @@ import { useNavigate } from "react-router-dom";
 
 interface User {
     id: string;
-    username: string;
+    userName: string;
     role: string;
 }
 
 interface UserContextType {
-    // user:  User| null;
-    // token: string;
-    // loadingLogin: boolean;
-    // loadingRegister: boolean;
-    // loginAction: (data: { username: string; password: string }) => Promise<void>;
-    // signupAction: (data: { username: string; password: string; name:string; role:string }) => Promise<unknown>;
-    // logOut: () => void;
+    getUsers: () => Promise<unknown>;
+    users: User[];
+    deleteUser: (data: { id: string }) => Promise<unknown>;
+    setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+    updateUser: (data: { id: string; role:string }) => Promise<unknown>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -84,11 +82,17 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
     }
 
-    
-    const getUsers = async () => {
+    const updateUser = async (data: { id: string; role:string }) => {
         try {
-            const response = await fetch("http://localhost:5281/authentication/registration", {
-                method: "GET",
+            setUsers(users.map(u => {
+                if(u.id === data.id){
+                    u.role = data.role
+                }
+                return u
+            }))
+
+            const response = await fetch(`http://localhost:5281/authentication/users/${data.id}/role/${data.role}`, {
+                method: "Post",
                 // mode: 'no-cors', 
                 headers: {
                     "Content-Type": "application/json",
@@ -113,6 +117,60 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
                 
                 const statusRes = await statusResponse.json();
+                if(statusRes.result.succeeded){
+                    setUsers(users.map(u => {
+                        if(u.id === data.id){
+                            u.role = data.role
+                        }
+                        return u
+                    }))
+                }
+
+
+                return statusRes
+
+
+            } else {
+                throw new Error(res.message || "Get User Failed");
+            }
+        } catch (err) {
+            console.log("Error:", err);
+            return err;
+        }
+    }
+
+    
+    const getUsers = async () => {
+        try {
+            const response = await fetch("http://localhost:5281/authentication/users", {
+                method: "GET",
+                // mode: 'no-cors', 
+                headers: {
+                    "Content-Type": "application/json",
+
+                    "Authorization": `Bearer ${token}`,
+                }
+            });
+            const res = await response.json();
+            if (res) {
+                const ticketId = res.ticketId;
+                // setLoadingRegister(true)
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                // setLoadingRegister(false)
+                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                    method: "GET",
+                    // mode: 'no-cors', 
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                
+                const statusRes = await statusResponse.json();
+                console.log("hahahhhahaha")
+                console.log(statusRes)
+                console.log("hahahhhahaha")
                 //this need to be updated
                 setUsers(statusRes.result.users);
 
@@ -128,7 +186,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    return <UserContext.Provider value={{getUsers,users,deleteUser}}>{children}</UserContext.Provider>;
+    return <UserContext.Provider value={{getUsers,users,deleteUser,setUsers,updateUser}}>{children}</UserContext.Provider>;
 };
 
 export default UserProvider;

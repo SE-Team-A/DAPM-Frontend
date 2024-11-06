@@ -89,7 +89,7 @@ export default function PersistentDrawerLeft() {
     >
       <Divider />
       {
-        auth?.user?.isAdmin==="true" &&
+        (auth?.user?.role==="Admin"||auth?.user?.role==="SuperAdmin") &&
         <DrawerHeader>
           <Typography
             sx={{ width: "100%", textAlign: "center" }}
