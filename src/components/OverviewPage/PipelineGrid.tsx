@@ -1,3 +1,14 @@
+/**
+ * Author:
+ * - Raihanullah Mehran
+ *
+ * Description:
+ * 1. Fetching and displaying pipelines.
+ * 2. I created setPipelines reducer on the pipelineSlice.ts of redux to hold the fetched pipelines.
+ * 3. Updated the rendering code to use createRoot to replace reactDOM.render because it's deprecated.
+ *
+ */
+
 import { createRoot } from "react-dom/client";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -59,25 +70,9 @@ export default function AutoGrid() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  /**
-   * Author:
-   * - Raihanullah Mehran
-   *
-   * Description:
-   * 1. This part of code calls the fetchRepositoryPipelineList method which returns pipelines.
-   * 2. I created setPipelines reducer on the pipelineSlice.ts of redux to hold the fetched pipelines.
-   * 3. Updated the rendering code to use createRoot to replace reactDOM.render because it's deprecated.
-   */
   const pipelines = useSelector(getPipelines);
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
-
-  // const selectedOrg = useMemo(() => organizations[0], [organizations]);
-  // const selectedRepo = useMemo(
-  //   () =>
-  //     repositories.filter((repo) => repo.organizationId === selectedOrg.id)[0],
-  //   [repositories, selectedOrg]
-  // );
 
   const fetcDbPipelines = async () => {
     try {

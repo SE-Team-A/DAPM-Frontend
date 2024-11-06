@@ -1,4 +1,11 @@
-// ConfirmDeleteDialog.tsx
+/**
+ * Author:
+ * - Raihanullah Mehran s233837
+ *
+ * Description:
+ * Delete Dialog Box
+ */
+
 import React from "react";
 import {
   Dialog,
