@@ -29,7 +29,7 @@ import FlowDiagram from "./ImageGeneration/FlowDiagram";
 import { toPng } from "html-to-image";
 import { getNodesBounds, getViewportForBounds } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   getOrganizations,
   getRepositories,
@@ -39,6 +39,7 @@ import { Spinner } from "../common/Spinner";
 import { Edge, Node } from "reactflow";
 import throttle from "lodash/throttle";
 import { Root } from "react-dom/client";
+import { setPriority } from "os";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -69,22 +70,34 @@ interface ImageData {
 export default function AutoGrid() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [orgId, setOrgId] = useState("");
+  const [repoId, setRepoId] = useState("");
 
   const pipelines = useSelector(getPipelines);
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
 
+  if (organizations.length > 0) {
+    const selectedOrg = organizations[0];
+    if (selectedOrg) {
+      setOrgId(selectedOrg.id);
+      const selectedRepo = repositories.filter(
+        (repo) => repo.organizationId === selectedOrg.id
+      )[0];
+      if (selectedOrg) {
+        setRepoId(selectedRepo.id);
+      }
+    }
+  }
+
   const fetcDbPipelines = async () => {
     try {
-      // if (!selectedRepo) {
-      //   console.error("No repository found for the selected organization.");
-      //   return;
-      // }
+      if (!repoId) {
+        console.error("No repository found for the selected organization.");
+        return;
+      }
 
-      const pipelines = await fetchRepositoryPipelineList(
-        "d87bc490-828f-46c8-aa44-ded7729eaa82", // selectedOrg.id,
-        "fa6cf45e-b9f5-4dee-82b3-64fc1957a8fe" // selectedRepo.id
-      );
+      const pipelines = await fetchRepositoryPipelineList(orgId, repoId);
 
       return pipelines || [];
     } catch (error) {
