@@ -29,6 +29,7 @@ import { Spinner } from "../common/Spinner";
 import ReactFlow, { Edge, Handle, Node } from "reactflow";
 import throttle from "lodash/throttle";
 import { Root } from "react-dom/client";
+import React from "react";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
