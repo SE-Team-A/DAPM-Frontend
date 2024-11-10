@@ -1,0 +1,27 @@
+[
+    {
+        "id": "c34e5b11-7d65-4d60-8bde-4ac4a5a3c4a9",
+        "name": "test1",
+        "status": "Running",
+        "logs": "executionlog.txt"
+    },
+    {
+        "id": "d632e45a-8203-4034-9aa2-5db140850727",
+        "name": "test1",
+        "status": "NotStarted",
+        "logs": "executionlog.txt"
+    },
+    {
+        "id": "8e0e86dc-6e28-4cf9-a924-4e8f89cefe83",
+        "name": "test1",
+        "status": "Completed",
+        "logs": "executionlog.txt"
+    },
+    {
+        "id": "8b1f3883-e2bf-40db-a465-8998cc950e7d",
+        "name": "test1",
+        "status": "Error",
+        "logs": "executionlog.txt",
+        "error": "the following error occured while running execution: ¯\\_(ツ)_/¯"
+    }
+]

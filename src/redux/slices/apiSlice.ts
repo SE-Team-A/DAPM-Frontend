@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ApiState, Organization, Repository, Resource } from "../states/apiState";
-import { fetchOrganisationRepositories, fetchOrganisations, fetchRepository, fetchRepositoryResources } from "../../services/backendAPI";
+import { fetchOrganizationRepositories, fetchOrganizations, fetchRepository, fetchRepositoryResources } from "../../services/backendAPI";
 import { useAppSelector } from "../../hooks";
 import { getOrganizations } from "../selectors/apiSelector";
 
@@ -79,7 +79,8 @@ export const organizationThunk = createAsyncThunk<
   FetchOrganizationsResponse
 >("api/fetchOrganizations", async (_, thunkAPI) => {
   try {
-    const organizations = await fetchOrganisations(); // Fetch organizations from the backend API
+    const organizations = await fetchOrganizations(); // Fetch organizations from the backend API
+    console.log('orgs: ', organizations.result)
     return organizations.result; // Return data fetched from the API
   } catch (error) {
     return thunkAPI.rejectWithValue(error); // Handle error
@@ -89,12 +90,12 @@ export const organizationThunk = createAsyncThunk<
 export const repositoryThunk = createAsyncThunk<
   Repository[],
   Organization[]
->("api/fetchRespositories", async (organizations: Organization[], thunkAPI) => {
+>("api/fetchOrganizationRepositories", async (organizations: Organization[], thunkAPI) => {
   try {
-    
+    console.log('orgs: ',organizations)
     const repositories = [];
       for (const organization of organizations) {
-        const repos = await fetchOrganisationRepositories(organization.id);
+        const repos = await fetchOrganizationRepositories(organization.id);
         repositories.push(...repos.result.repositories);
       }
       return repositories;
