@@ -4,12 +4,12 @@ import React from 'react'
 type Props = {
     open: boolean;
     exId: string;
-    log: string;
+    error: string;
     onClose: () => void;
 }
 
-function ExecutionLogPopup(props: Props) {
-    const { onClose, exId, log, open } = props;
+function ErrorPopup(props: Props) {
+    const { onClose, exId, error, open } = props;
   
     const handleClose = () => {
       onClose();
@@ -17,12 +17,12 @@ function ExecutionLogPopup(props: Props) {
   
     return (
       <Dialog onClose={handleClose} open={open}>
-        <DialogTitle>Execution logs for execution: {exId}</DialogTitle>
+        <DialogTitle>Error log for execution: {exId}</DialogTitle>
         <div className='px-4 py-4'>
-            <p>{log}</p>
+            <p>{error}</p>
         </div>
       </Dialog>
     );
   }
 
-export default ExecutionLogPopup
+export default ErrorPopup

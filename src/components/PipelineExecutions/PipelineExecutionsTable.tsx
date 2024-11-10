@@ -11,6 +11,8 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { red } from '@mui/material/colors';
+import ExecutionLogPopup from './ExecutionLogPopup';
+import ErrorPopup from './ErrorPopup';
 
 type Props = {
     pid: string;
@@ -36,34 +38,27 @@ export const StatusIcon = (props: any) => {
     }
 }
 
-const openLogPopup = (logs: string) => {
-
-};
-
-const stopExecution = (id: string) => {
-
-};
-
-const startExecution = (id: string) => {
-
-};
-
 function PipelineExecutionsTable(props: Props) {
     const [executions, setExecutions] = useState<PipelineExecution[]>([]);
     const [logOpen, setLogOpen] = useState(false);
-    const [selectedLog, setSelectedLog] = useState('');
+    const [errorOpen, setErrorOpen] = useState(false);
+
+    const stopExecution = (id: string) => {
+        // Needs backend
+    };
+    
+    const startExecution = (id: string) => {
+        // Needs backend
+    };
+
+    const addExecution = () => {
+        // Needs backend
+    };
 
     useEffect(() => {
-        fetchPipelineExecutions(props.pid).then((resp) => {
-            console.log(resp)
-            setExecutions(resp);
-        });
-
-        
-      
+        fetchPipelineExecutions(props.pid).then((resp) => setExecutions(resp));
     }, [])
     
-
     return (
         <div className="mt-10">
             <div className="my-table flex flex-wrap w-full ">
@@ -93,8 +88,14 @@ function PipelineExecutionsTable(props: Props) {
                                 {
                                     ex.logs && (
                                     <Tooltip title="Show logs">
-                                        <button onClick={() => openLogPopup(ex.logs!)}>
+                                        <button onClick={() => setLogOpen(true)}>
                                             <LibraryBooksIcon />
+                                            <ExecutionLogPopup
+                                                open={logOpen}
+                                                exId={ex.id}
+                                                log={ex.logs}
+                                                onClose={() => setLogOpen(false)}
+                                            />
                                         </button>
                                     </Tooltip>)
                                 }
@@ -103,8 +104,14 @@ function PipelineExecutionsTable(props: Props) {
                                 {
                                     ex.error && (
                                     <Tooltip title="Show error">
-                                        <button onClick={() => openLogPopup(ex.error!)}>
+                                        <button onClick={() => setErrorOpen(true)}>
                                             <AnnouncementIcon />
+                                            <ErrorPopup
+                                                open={errorOpen}
+                                                exId={ex.id}
+                                                error={ex.error}
+                                                onClose={() => setErrorOpen(false)}
+                                            />
                                         </button>
                                     </Tooltip>)
                                 }
@@ -146,15 +153,14 @@ function PipelineExecutionsTable(props: Props) {
                     )}
                 </div>
             </div>
-            <div className="flex justify-end mt-2">
-                {/* <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm ${currentPage === 1 ? "bg-slate-400" : ""}`}>Previous</button>
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white ml-2 text-sm ${currentPage === totalPages ? "bg-slate-400" : ""}`}>Next</button> */}
+            <div className="flex mt-10">
+                {
+                    <button
+                        onClick={() => addExecution()}
+                        className='px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm font-bold'>
+                            New Execution
+                    </button>
+                }
             </div>
 
         </div>
