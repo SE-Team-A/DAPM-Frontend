@@ -30,6 +30,7 @@ export default function PipelineAppBar() {
   const repositories = useSelector(getRepositories)
 
   const pipeline = useSelector(getActivePipeline)
+  const pipelineID = useSelector(getActivePipeline)?.id
 
   const setPipelineName = (name: string) => {
     dispatch(updatePipelineName(name))
@@ -131,7 +132,7 @@ export default function PipelineAppBar() {
   const savePipeline = async () => {
     const {org, repo, pipeline} = generateJson();
     console.log(pipelineID);
-    console.log(pipelineName);
+    console.log(pipeline);
     console.log(pipeline.name);
     
 
