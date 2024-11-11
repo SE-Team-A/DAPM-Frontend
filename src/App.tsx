@@ -24,6 +24,7 @@ import { Toaster } from "react-hot-toast";
 import PrivateAdminRoute from "./router/privateAdminRoute";
 import AdminDashboard from "./routes/DashboardPage";
 import UserProvider from "./auth/usersProvider";
+import PipelineExecutions from "./routes/PipelineExecutions";
 
 // Configure redux-persist
 const persistConfig = {
@@ -92,6 +93,7 @@ export default function App() {
                   <Route element={<PrivateAdminRoute />}>
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   </Route>
+                  <Route path="/pipeline/:id/executions" element={<PipelineExecutions />}></Route>
                 </Route>
               </Routes>
             </Provider>

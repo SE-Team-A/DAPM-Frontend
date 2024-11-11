@@ -29,8 +29,7 @@ export default function PipelineAppBar() {
   const organizations = useSelector(getOrganizations)
   const repositories = useSelector(getRepositories)
 
-  const pipelineName = useSelector(getActivePipeline)?.name
-  const pipelineID = useSelector(getActivePipeline)?.id
+  const pipeline = useSelector(getActivePipeline)
 
   const setPipelineName = (name: string) => {
     dispatch(updatePipelineName(name))
@@ -76,8 +75,8 @@ export default function PipelineAppBar() {
 
     console.log(JSON.stringify(dataSinks))
 
-    const pipeline = {
-      name: pipelineName,
+    const pipelineJson = {
+      name: pipeline?.name ?? "",
       pipeline: {
         nodes: flowData?.nodes?.filter(node => node.type === 'dataSource').map(node => node as Node<DataSourceNodeData>).map(node => {
           return {
@@ -125,7 +124,7 @@ export default function PipelineAppBar() {
     return {
       org: selectedOrg,
       repo: selectedRepo,
-      pipeline: pipeline
+      pipeline: pipelineJson
     };
   }
 
@@ -147,7 +146,8 @@ export default function PipelineAppBar() {
     console.log(`Pipeline with id: ${pipelineID} has been edited successfully!`);
    }
   };
-  
+
+  const gotoExecutions = () => navigate(`/pipeline/${pipeline?.id}/executions`);
 
   const deployPipeline = async () => {
     const {org, repo, pipeline} = generateJson();
@@ -167,7 +167,7 @@ export default function PipelineAppBar() {
         <Box sx={{ width: '100%', textAlign: 'center' }}>
           {isEditing ? (
             <TextField
-              value={pipelineName}
+              value={pipeline?.name}
               onChange={(event) => setPipelineName(event?.target.value as string)}
               autoFocus
               onBlur={handleFinishEditing}
@@ -175,13 +175,16 @@ export default function PipelineAppBar() {
             />
           ) : (
             <Box onClick={handleStartEditing} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
-              <Typography>{pipelineName}</Typography>
+              <Typography>{pipeline?.name}</Typography>
               <EditIcon sx={{ paddingLeft: '10px' }} />
             </Box>
           )}
         </Box>
         <Button onClick={() => savePipeline()}>
           <Typography variant="body1" sx={{ color: "white" }}>Save pipeline</Typography>
+        </Button>
+        <Button onClick={() => gotoExecutions()}>
+          <Typography variant="body1" sx={{ color: "white" }}>See Executions</Typography>
         </Button>
         <Button onClick={() => deployPipeline()}>
           <Typography variant="body1" sx={{ color: "white" }}>Deploy pipeline</Typography>

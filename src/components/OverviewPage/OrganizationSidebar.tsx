@@ -44,9 +44,15 @@ export default function PersistentDrawerLeft() {
 
   useEffect(() => {
       dispatch(organizationThunk());
-      dispatch(repositoryThunk(organizations));
-      dispatch(resourceThunk({ organizations, repositories }));
-  }, [dispatch]);
+  }, []);
+
+  useEffect(() => {
+    dispatch(repositoryThunk(organizations));
+  }, [organizations]);
+
+  useEffect(() => {
+    dispatch(resourceThunk({ organizations, repositories }));
+  }, [repositories]);
 
   const handleDelete = async (resource: Resource) => {
     setDeleteAlertOpen(true); // Show the Snackbar

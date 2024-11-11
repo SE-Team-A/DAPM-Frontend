@@ -47,7 +47,7 @@ export async function fetchFile(ticket: string) {
   }
 }
 
-export async function fetchOrganisations() {
+export async function fetchOrganizations() {
   try {
     const response = await fetch(`http://` + path + `/organizations`, {
       headers,
@@ -127,7 +127,7 @@ export async function fetchOrganisation(orgId: string) {
   }
 }
 
-export async function fetchOrganisationRepositories(orgId: string) {
+export async function fetchOrganizationRepositories(orgId: string) {
   try {
     const response = await fetch(
       `http://` + path + `/Organizations/${orgId}/repositories`,
@@ -340,6 +340,14 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
     console.error("fetching pipelines, Error fetching data:", error);
     throw error; // Propagate error to the caller
   }
+}
+
+export async function fetchPipelineExecutions(pipelineId: string) {
+    const resp = await fetch('http://localhost:3000/mock/executions.mock.json'); // Swap this with the right url once the endpoint is ready
+    if (!resp.ok) {
+      throw new Error("fetching pipelines, Network response was not ok");
+    }
+    return resp.json();
 }
 
 /**

@@ -74,40 +74,44 @@ export default function AutoGrid() {
   const [orgId, setOrgId] = useState("");
   const [repoId, setRepoId] = useState("");
 
-  const pipelines = useSelector(getPipelines);
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
-
-  if (organizations.length > 0) {
-    const selectedOrg = organizations[0];
-    if (selectedOrg) {
-      setOrgId(selectedOrg.id);
-      const selectedRepo = repositories.filter(
-        (repo) => repo.organizationId === selectedOrg.id
-      )[0];
-      if (selectedOrg) {
-        setRepoId(selectedRepo.id);
-      }
-    }
-  }
-
-  const fetcDbPipelines = async () => {
-    try {
-      if (!repoId) {
-        console.error("No repository found for the selected organization.");
-        return;
-      }
-
-      const pipelines = await fetchRepositoryPipelineList(orgId, repoId);
-
-      return pipelines || [];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      return;
-    }
-  };
+  const pipelines = useSelector(getPipelines);
 
   useEffect(() => {
+    if (organizations.length > 0) {
+      const selectedOrg = organizations[0];
+      if (selectedOrg) {
+        setOrgId(selectedOrg.id);
+        const selectedRepo = repositories.filter(
+          (repo) => repo.organizationId === selectedOrg.id
+        )[0];
+        if (selectedRepo) {
+          setRepoId(selectedRepo.id);
+        }
+      }
+    }
+  }, [organizations, repositories])
+
+  useEffect(() => {
+    
+  
+    const fetcDbPipelines = async () => {
+      try {
+        if (!repoId) {
+          console.error("No repository found for the selected organization.");
+          return;
+        }
+  
+        const pipelines = await fetchRepositoryPipelineList(orgId, repoId);
+  
+        return pipelines || [];
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        return;
+      }
+    };
+
     if (pipelines.length > 0) {
       console.log(pipelines);
 
@@ -130,7 +134,7 @@ export default function AutoGrid() {
     };
 
     updatePipelines();
-  }, [useSelector(getPipelines)]);
+  }, [orgId, repoId]);
 
   const createNewPipeline = () => {
     dispatch(
