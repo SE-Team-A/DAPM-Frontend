@@ -133,14 +133,18 @@ export default function PipelineAppBar() {
     const {org, repo, pipeline} = generateJson();
     console.log(pipelineID);
     console.log(pipelineName);
+    console.log(pipeline.name);
+    
 
     if (pipelineID?.startsWith('pipeline')){
       const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
       console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
+      window.location.href='http://localhost:3000';
+      
     }
    else if (pipelineID){
     const pipelineId = await editPipeline(org.id, repo.id, pipelineID, pipeline);    
-    console.log(`Pipeline with id: ${pipelineId} has been edited successfully!`);
+    console.log(`Pipeline with id: ${pipelineID} has been edited successfully!`);
    }
   };
   
