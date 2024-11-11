@@ -25,7 +25,7 @@ interface SignupResponse {
     };
 }
 
-const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup }) => {
+const CreateUserForm: React.FC<CreateUserFormProps> = ({ setOpenAddMemberPopup }) => {
     const auth = useAuth();
 
     const formik = useFormik({
@@ -38,29 +38,29 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup })
         validationSchema: Yup.object({
             username: Yup.string().required('Username is required'),
             password: Yup.string().required('Password is required').matches(
-                    /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
-                    'Password must contain at least one numeric value, one special character, one uppercase letter, one lowercase letter, and at least 8 characters'
-                ),
+                /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+                'Password must contain at least one numeric value, one special character, one uppercase letter, one lowercase letter, and at least 8 characters'
+            ),
             name: Yup.string().required('Name is required'),
             role: Yup.string().required('Role is required')
 
         }),
-        onSubmit: async (values,{ resetForm }) => {
+        onSubmit: async (values, { resetForm }) => {
             console.log(values)
             const error = await auth?.signupAction(values) as SignupResponse;
             console.log(error, "I am error")
-            if(error?.result){
-                if(error?.result?.succeeded){
+            if (error?.result) {
+                if (error?.result?.succeeded) {
 
                     setOpenAddMemberPopup(false)
                 }
-                else if(!error?.result?.succeeded){
-                    console.log("usernmamm: ",error?.result)
+                else if (!error?.result?.succeeded) {
+                    console.log("usernmamm: ", error?.result)
                     alert("Username is already used")
                     resetForm()
                 }
             }
-            else{
+            else {
                 alert("Fetch error")
                 resetForm()
             }
@@ -137,17 +137,21 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({setOpenAddMemberPopup })
                         <CardMembershipIcon className=" text-white "></CardMembershipIcon>
 
                         <select
-                                // placeholder=""
-                                className="w-full p-0 select priority-select  bg-[#121212] border-none focus:border-none text-white"
-                                name="role"
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                value={formik.values.role}
-                                aria-label="Project status">
-                                {/* <option value=""></option> */}
-                                <option value="user">User</option>
-                                <option value="admin">Admin</option>
-                            </select>
+                            // placeholder=""
+                            className="w-full p-0 select priority-select  bg-[#121212] border-none focus:border-none text-white"
+                            name="role"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.role}
+                            aria-label="Project status">
+                            {auth?.user?.role === "SuperAdmin" &&
+                            <option value="Superadmin">Super Admin</option>
+                            }
+                            <option value="Admin">Admin</option>
+                            <option value="User">User</option>
+                            
+                            <option value="Guest">Guest</option>
+                        </select>
                     </div>
                     {formik.touched.role && formik.errors.role ? (
                         <div className="text-red-500 text-xs text-start mt-1">{formik.errors.role}</div>

@@ -16,7 +16,7 @@ import { jwtDecode } from "jwt-decode";
 interface User {
     id: string;
     username: string;
-    isAdmin: string;  
+    role: string;  
 }
 
 interface AuthContextType {
