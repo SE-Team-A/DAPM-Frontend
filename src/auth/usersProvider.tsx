@@ -24,20 +24,26 @@ interface UserContextType {
     deleteUser: (data: { id: string }) => Promise<unknown>;
     setUsers: React.Dispatch<React.SetStateAction<User[]>>;
     updateUser: (data: { id: string; role:string }) => Promise<unknown>;
+    signupAction: (data: { username: string; password: string; name:string; role:string }) => Promise<unknown>;
+    loadingRegister: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
     const [users, setUsers] = useState<User[]>([]);
+    const [loadingRegister, setLoadingRegister] = useState(false);
+
     
 
     const token = localStorage.getItem("token") || "";
     const deleteUser = async (data: { id: string }) => {
-        console.log(token)
+        console.log(data.id)
 
+        setUsers((prev) => prev.filter((user) => user.id !== data.id));
         try {
-            const response = await fetch("http://localhost:5281/authentication/registration", {
+
+            const response = await fetch(`http://localhost:5281/authentication/users/${data.id}`, {
                 method: "Delete",
                 // mode: 'no-cors', 
                 headers: {
@@ -66,12 +72,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 });
 
                 const statusRes = await statusResponse.json();
-                setUsers(users.filter(u => u.id !== data.id));
+                console.log(statusRes)
+
                 return statusRes
 
 
             } else {
-                // alert("Wrong username or password");
+                alert("something went wrong");
                 throw new Error(res.message || "Registration failed");
             }
 
@@ -186,7 +193,68 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    return <UserContext.Provider value={{getUsers,users,deleteUser,setUsers,updateUser}}>{children}</UserContext.Provider>;
+    const signupAction = async (data: { username: string; password: string; name:string; role:string }) => {
+        console.log(token)
+        
+        
+        try {
+            
+            const response = await fetch("http://localhost:5281/authentication/registration", {
+                method: "POST",
+                // mode: 'no-cors', 
+                headers: {
+                    "Content-Type": "application/json",
+                    
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(data),
+            });
+            const res = await response.json();
+
+
+            if (res) {
+                
+
+                const ticketId = res.ticketId;
+                setLoadingRegister(true)
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                setLoadingRegister(false)
+                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                    method: "GET",
+                    // mode: 'no-cors', 
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                const statusRes = await statusResponse.json();
+                // console.log(statusRes)
+                getUsers();
+                return statusRes
+
+                // // Check if the status retrieval succeeded
+                // if (statusRes.result.succeeded) {
+
+
+                // } else {
+                //     alert("Wrong username or password");
+                //     throw new Error("Wrong username or password");
+                // }
+
+            } else {
+                // alert("Wrong username or password");
+                throw new Error(res.message || "Registration failed");
+            }
+
+        } catch (err) {
+            console.log("Error:", err);
+            return err;
+        }
+
+    }
+
+    return <UserContext.Provider value={{loadingRegister,getUsers,users,deleteUser,setUsers,updateUser,signupAction}}>{children}</UserContext.Provider>;
 };
 
 export default UserProvider;

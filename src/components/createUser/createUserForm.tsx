@@ -11,6 +11,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PasswordIcon from '@mui/icons-material/Password';
 import { useAuth } from "../../auth/authProvider";
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
+import { useUsers } from "../../auth/usersProvider";
 
 interface CreateUserFormProps {
     setOpenAddMemberPopup: (value: boolean) => void;
@@ -26,7 +27,8 @@ interface SignupResponse {
 }
 
 const CreateUserForm: React.FC<CreateUserFormProps> = ({ setOpenAddMemberPopup }) => {
-    const auth = useAuth();
+    const auth = useUsers();
+    const auth2 = useAuth();
 
     const formik = useFormik({
         initialValues: {
@@ -144,7 +146,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ setOpenAddMemberPopup }
                             onBlur={formik.handleBlur}
                             value={formik.values.role}
                             aria-label="Project status">
-                            {auth?.user?.role === "SuperAdmin" &&
+                            {auth2?.user?.role === "SuperAdmin" &&
                             <option value="Superadmin">Super Admin</option>
                             }
                             <option value="Admin">Admin</option>

@@ -9,6 +9,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import CreateUserForm from './createUserForm';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '../../auth/authProvider';
+import { useUsers } from '../../auth/usersProvider';
 
 
 interface AddMemberPopupProps {
@@ -18,7 +19,7 @@ interface AddMemberPopupProps {
 
 
 const AddMemberPopup: React.FC<AddMemberPopupProps> = ({ openAddMemberPopup, setOpenAddMemberPopup }) => {
-    const user = useAuth();
+    const user = useUsers();
 console.log(user?.loadingRegister)
 
     return (
