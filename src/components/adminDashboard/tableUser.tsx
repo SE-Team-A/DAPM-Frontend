@@ -20,6 +20,13 @@ export default function TableUsers() {
     const userProvider = useUsers();
     const auth = useAuth();
 
+    function handleDelete(id: string) {
+        //handle delete on the useState users
+        console.log(id)
+        userProvider?.deleteUser({id});
+        setOpenDeleteMemberPopup(false);
+    }
+
 
     useEffect(() => {
 
@@ -145,7 +152,7 @@ export default function TableUsers() {
                                 }
                           
                             </div>
-                            <DeleteMemberPopup openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
+                            <DeleteMemberPopup id={user.id} handleDelete={handleDelete} openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
                             {/* {   !(auth?.user?.role === "Admin" && (user.role === "Admin"||user.role === "SuperAdmin") )?
                                 : <p className="text-red-400">No permission</p>
                             } */}
