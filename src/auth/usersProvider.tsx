@@ -43,7 +43,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         setUsers((prev) => prev.filter((user) => user.id !== data.id));
         try {
 
-            const response = await fetch(`http://localhost:5281/authentication/users/${data.id}`, {
+            const response = await fetch(process.env.REACT_APP_API_URL + `/authentication/users/${data.id}`, {
                 method: "Delete",
                 // mode: 'no-cors', 
                 headers: {
@@ -62,7 +62,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 // setLoadingRegister(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 // setLoadingRegister(false)
-                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {
@@ -98,7 +98,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 return u
             }))
 
-            const response = await fetch(`http://localhost:5281/authentication/users/${data.id}/role/${data.role}`, {
+            const response = await fetch(process.env.REACT_APP_API_URL + `/authentication/users/${data.id}/role/${data.role}`, {
                 method: "Post",
                 // mode: 'no-cors', 
                 headers: {
@@ -113,7 +113,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 // setLoadingRegister(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 // setLoadingRegister(false)
-                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {
@@ -149,7 +149,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     
     const getUsers = async () => {
         try {
-            const response = await fetch("http://localhost:5281/authentication/users", {
+            const response = await fetch(process.env.REACT_APP_API_URL + "/authentication/users", {
                 method: "GET",
                 // mode: 'no-cors', 
                 headers: {
@@ -164,7 +164,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 // setLoadingRegister(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 // setLoadingRegister(false)
-                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {
@@ -199,7 +199,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         
         try {
             
-            const response = await fetch("http://localhost:5281/authentication/registration", {
+            const response = await fetch(process.env.REACT_APP_API_URL + "/authentication/registration", {
                 method: "POST",
                 // mode: 'no-cors', 
                 headers: {
@@ -219,7 +219,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
                 setLoadingRegister(true)
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 setLoadingRegister(false)
-                const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {

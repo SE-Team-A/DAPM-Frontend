@@ -139,7 +139,7 @@ export default function PipelineAppBar() {
     if (pipelineID?.startsWith('pipeline')){
       const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
       console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
-      window.location.href='http://localhost:3000';
+      window.location.href=process.env.REACT_APP_FRONTEND_URL+''
       
     }
    else if (pipelineID){

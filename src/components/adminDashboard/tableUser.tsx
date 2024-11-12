@@ -32,7 +32,7 @@ export default function TableUsers() {
 
         const getUsers = async () => {
             try {
-                const response = await fetch("http://localhost:5281/authentication/users", {
+                const response = await fetch(process.env.REACT_APP_API_URL + "/authentication/users", {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {
@@ -47,7 +47,7 @@ export default function TableUsers() {
                     // setLoadingRegister(true)
                     await new Promise((resolve) => setTimeout(resolve, 2000));
                     // setLoadingRegister(false)
-                    const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                    const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                         method: "GET",
                         // mode: 'no-cors', 
                         headers: {
