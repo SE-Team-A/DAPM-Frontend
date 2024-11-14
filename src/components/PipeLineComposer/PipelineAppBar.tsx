@@ -7,7 +7,7 @@ import { useState } from "react";
 import { updatePipelineName } from "../../redux/slices/pipelineSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import { Node } from "reactflow";
-import { DataSinkNodeData, DataSourceNodeData, OperatorNodeData, PipelineData } from "../../redux/states/pipelineState";
+import { DataSinkNodeData, DataSourceNodeData, OperatorNodeData, OrganizationNodeData, PipelineData } from "../../redux/states/pipelineState";
 import { editPipeline, putCommandStart, putExecution, putPipeline } from "../../services/backendAPI";
 import { getOrganizations, getRepositories } from "../../redux/selectors/apiSelector";
 import { getHandleId, getNodeId } from "./Flow";
@@ -66,10 +66,10 @@ export default function PipelineAppBar() {
               }
             }
           },
-          position: { x: 100, y: 100 },
+          position: { x: originalDataSink.position.x, y: originalDataSink.position.y },
           id: getNodeId(),
-          width: 100,
-          height: 100,
+          width: originalDataSink.width,
+          height: originalDataSink.height,
         }
       }
     }).filter(node => node !== undefined) as any
@@ -93,7 +93,7 @@ export default function PipelineAppBar() {
                 },
               }
             },
-            width: 100, height: 100, position: { x: 100, y: 100 }, id: node.id, label: "",
+            width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
           } as any
         }).concat(
           flowData?.nodes?.filter(node => node.type === 'operator').map(node => node as Node<OperatorNodeData>).map(node => {
@@ -109,10 +109,28 @@ export default function PipelineAppBar() {
                   }
                 }
               },
-              width: 100, height: 100, position: { x: 100, y: 100 }, id: node.id, label: "",
+              width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
             } as any
-          })
-        ).concat(dataSinks),
+          }).concat(
+            flowData?.nodes?.filter(node => node.type === 'organization').map(node => node as Node<OrganizationNodeData>).map(node => {
+              return {
+                type: node.type, data: {
+                  ...node.data,
+                  instantiationData: {
+                    resource: {},
+                    organization: {
+                      //...node?.data?.instantiationData.algorithm,
+                      name: node?.data?.instantiationData.organization?.name,
+                      organizationId: node.data.instantiationData.organization?.id,
+                      apiUrl: node?.data?.instantiationData.organization?.apiUrl,
+                    }
+                  }
+                },
+                width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
+              } as any
+            }))
+        )
+        .concat(dataSinks),
         edges: edges.map(edge => {
           return { sourceHandle: edge.sourceHandle, targetHandle: edge.targetHandle }
         })
@@ -153,10 +171,10 @@ export default function PipelineAppBar() {
   const deployPipeline = async () => {
     const {org, repo, pipeline} = generateJson();
 
-    /// TODO: don't save it twice
-    const pipelineId = await putPipeline(org.id, repo.id, pipeline)
-    const executionId = await putExecution(org.id, repo.id, pipelineId)
-    await putCommandStart(org.id, repo.id, pipelineId, executionId)
+    // /// TODO: don't save it twice
+    // const pipelineId = await putPipeline(org.id, repo.id, pipeline)
+    // const executionId = await putExecution(org.id, repo.id, pipelineId)
+    // await putCommandStart(org.id, repo.id, pipelineId, executionId)
   };
 
   return (
