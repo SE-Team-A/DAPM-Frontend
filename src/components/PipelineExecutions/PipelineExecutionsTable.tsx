@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { fetchPipelineExecutions } from '../../services/backendAPI';
+import { fetchPipelineExecutions, addPipelineExecution } from '../../services/backendAPI';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import PendingIcon from '@mui/icons-material/Pending';
@@ -11,15 +11,17 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { red } from '@mui/material/colors';
+import toast from 'react-hot-toast';
 
 type Props = {
     pid: string;
+    orgId: string;
+    repId: string;
 }
 
 export interface PipelineExecution {
-    id: string;
-    name: string;
-    status: 'Running' | 'Completed' | 'Error' | 'NotStarted';
+    executionId: string;
+    state: 'Running' | 'Completed' | 'Error' | 'Not Started';
     logs?: string;
     error?: string;
 }
@@ -31,7 +33,7 @@ export const StatusIcon = (props: any) => {
         case 'Completed': return <CheckCircleIcon color='success' />
         case 'Running': return <PendingIcon color='primary'/>
         case 'Error': return <ErrorIcon sx={{color: red[500]}}/>
-        case 'NotStarted': return <NotStartedIcon />
+        case 'Not Started': return <NotStartedIcon />
         default: return <div></div>
     }
 }
@@ -54,15 +56,19 @@ function PipelineExecutionsTable(props: Props) {
     const [selectedLog, setSelectedLog] = useState('');
 
     useEffect(() => {
-        fetchPipelineExecutions(props.pid).then((resp) => {
+        fetchPipelineExecutions(props.orgId, props.repId, props.pid).then((resp) => {
             console.log(resp)
             setExecutions(resp);
         });
-
-        
-      
     }, [])
     
+
+    const newExecution = () => {
+        addPipelineExecution(props.orgId, props.repId, props.pid).then(
+            () => toast.success("Pipeline Execution Added!"),
+            () => toast.error("An error has occured during processing your request.")
+        )
+    };
 
     return (
         <div className="mt-10">
@@ -77,14 +83,14 @@ function PipelineExecutionsTable(props: Props) {
                 <div className="table-body w-full ">
                     {executions.length ? executions.map((ex) => (
                         <div 
-                            key={ex.id}
+                            key={ex.executionId}
                             className="text-center text-white p-2 table-header flex w-full  table-tr rounded  mt-2 drop-shadow-2xl"
                         >
-                            <div className="table-row-item w-1/5">{ex.id}</div>
+                            <div className="table-row-item w-1/5">{ex.executionId}</div>
                             <div className="table-row-item w-1/5">
-                                <Tooltip title={ex.status}>
+                                <Tooltip title={ex.state}>
                                     <div>
-                                        <StatusIcon status={ex.status}/>
+                                        <StatusIcon status={ex.state}/>
                                     </div>
                                 </Tooltip>
                             
@@ -111,25 +117,25 @@ function PipelineExecutionsTable(props: Props) {
                             </div>
                             <div className="table-row-item w-1/5">
                                 {
-                                    ex.status === 'Running' && (
+                                    ex.state === 'Running' && (
                                         <Tooltip title="Stop Execution">
-                                            <button onClick={() => stopExecution(ex.id!)}>
+                                            <button onClick={() => stopExecution(ex.executionId!)}>
                                                 <StopIcon />
                                             </button>
                                         </Tooltip>
                                     )
                                     ||
-                                    (ex.status === 'NotStarted' && (
+                                    (ex.state === 'Not Started' && (
                                         <Tooltip title="Start Execution">
-                                            <button onClick={() => startExecution(ex.id!)}>
+                                            <button onClick={() => startExecution(ex.executionId!)}>
                                                 <PlayCircleOutlineIcon />
                                             </button>
                                         </Tooltip>
                                     ))
                                     ||
-                                    ((ex.status === 'Completed' || ex.status === 'Error') && (
+                                    ((ex.state === 'Completed' || ex.state === 'Error') && (
                                         <Tooltip title="Rerun Execution">
-                                            <button onClick={() => startExecution(ex.id!)}>
+                                            <button onClick={() => startExecution(ex.executionId!)}>
                                                 <RestartAltIcon />
                                             </button>
                                         </Tooltip>
@@ -147,14 +153,9 @@ function PipelineExecutionsTable(props: Props) {
                 </div>
             </div>
             <div className="flex justify-end mt-2">
-                {/* <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm ${currentPage === 1 ? "bg-slate-400" : ""}`}>Previous</button>
                 <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white ml-2 text-sm ${currentPage === totalPages ? "bg-slate-400" : ""}`}>Next</button> */}
+                    onClick={() => newExecution()}
+                    className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm`}>New execution</button>
             </div>
 
         </div>
