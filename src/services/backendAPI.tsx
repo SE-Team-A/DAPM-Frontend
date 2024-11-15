@@ -14,9 +14,12 @@ const headers = {
 
 export async function fetchStatus(ticket: string) {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${ticket}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/status/${ticket}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -31,9 +34,12 @@ export async function fetchStatus(ticket: string) {
 
 export async function fetchFile(ticket: string) {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${ticket}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/status/${ticket}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -47,9 +53,12 @@ export async function fetchFile(ticket: string) {
 
 export async function fetchOrganizations() {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/organizations`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/organizations`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Fetching orgs, Network response was not ok");
     }
@@ -87,9 +96,12 @@ export async function fetchOrganizations() {
 
 export async function fetchOrganisation(orgId: string) {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/Organizations/${orgId}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Fetching org, Network response was not ok");
     }
@@ -390,8 +402,7 @@ export async function deletePipeline(
 ) {
   console.log("request sent");
 
-  const request =
-    `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`;
+  const request = `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`;
 
   const response = await fetch(request, {
     method: "DELETE",
@@ -406,6 +417,7 @@ export async function deletePipeline(
   }
 
   const jsonData = await response.json();
+  console.log("DeletePipeline:", jsonData);
 
   // Fetch additional data recursively
   const getData = async (ticketId: string): Promise<any> => {
@@ -416,6 +428,8 @@ export async function deletePipeline(
     for (let retries = 0; retries < maxRetries; retries++) {
       try {
         const data = await fetchStatus(ticketId);
+        console.log("data", data);
+
         if (data.status) {
           return data.result;
         }
@@ -427,8 +441,6 @@ export async function deletePipeline(
         }
       }
     }
-    console.error("Failed to delete pipeline!");
-    throw new Error("Failed to delete pipeline!");
   };
 
   return await getData(jsonData.ticketId);
@@ -590,7 +602,7 @@ export async function editPipeline(
   orgId: string,
   repId: string,
   pipelineId: string,
-  pipelineData: any,
+  pipelineData: any
 ) {
   console.log(pipelineData);
   try {
@@ -604,13 +616,13 @@ export async function editPipeline(
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(pipelineData),
-      },
+      }
     );
 
     if (!response.ok) {
       throw new Error("edit pipeline, Network response was not ok");
     }
-    console.log('eddited');
+    console.log("eddited");
     const jsonData = await response.json();
     // Fetch additional data recursively
     const getData = async (ticketId: string): Promise<any> => {
@@ -959,8 +971,7 @@ export async function deleteResource(
 ): Promise<Response> {
   //const headers = new Headers()
   // headers.append("Authorization", `Bearer ${token}`);
-  const response01 =
-    `${process.env.REACT_APP_API_URL}/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`;
+  const response01 = `${process.env.REACT_APP_API_URL}/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`;
   try {
     const response = await fetch(response01, {
       method: "DELETE",

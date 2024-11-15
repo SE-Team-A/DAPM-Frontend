@@ -42,7 +42,7 @@ export default function MediaCard({
   };
 
   const handleConfirmDelete = () => {
-    handleDeletePipeline(id, name);
+    handleDeletePipeline(id, name, orgId, repoId);
     onDelete(id);
     setOpenConfirmDialog(false);
   };
