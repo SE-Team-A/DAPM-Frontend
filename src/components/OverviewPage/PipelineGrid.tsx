@@ -1,3 +1,14 @@
+/**
+ * Author:
+ * - Raihanullah Mehran
+ *
+ * Description:
+ * 1. Fetching and displaying pipelines.
+ * 2. I created setPipelines reducer on the pipelineSlice.ts of redux to hold the fetched pipelines.
+ * 3. Updated the rendering code to use createRoot to replace reactDOM.render because it's deprecated.
+ *
+ */
+
 import { createRoot } from "react-dom/client";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -10,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNewPipeline,
-  setImageData,
   setMultipleImageData,
   setPipelines,
 } from "../../redux/slices/pipelineSlice";
@@ -19,16 +29,18 @@ import FlowDiagram from "./ImageGeneration/FlowDiagram";
 import { toPng } from "html-to-image";
 import { getNodesBounds, getViewportForBounds } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   getOrganizations,
   getRepositories,
 } from "../../redux/selectors/apiSelector";
 import { fetchRepositoryPipelineList } from "../../services/backendAPI";
 import { Spinner } from "../common/Spinner";
-import ReactFlow, { Edge, Handle, Node } from "reactflow";
+import { Edge, Node } from "reactflow";
 import throttle from "lodash/throttle";
 import { Root } from "react-dom/client";
+import { setPriority } from "os";
+import React from "react";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -59,47 +71,45 @@ interface ImageData {
 export default function AutoGrid() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [orgId, setOrgId] = useState("");
+  const [repoId, setRepoId] = useState("");
 
-  /**
-   * Author:
-   * - Raihanullah Mehran
-   *
-   * Description:
-   * 1. This part of code calls the fetchRepositoryPipelineList method which returns pipelines.
-   * 2. I created setPipelines reducer on the pipelineSlice.ts of redux to hold the fetched pipelines.
-   * 3. Updated the rendering code to use createRoot to replace reactDOM.render because it's deprecated.
-   */
-  const pipelines = useSelector(getPipelines);
   const organizations = useSelector(getOrganizations);
   const repositories = useSelector(getRepositories);
-
-  const selectedOrg = useMemo(() => organizations[0], [organizations]);
-  const selectedRepo = useMemo(
-    () =>
-      repositories.filter((repo) => repo.organizationId === selectedOrg.id)[0],
-    [repositories, selectedOrg]
-  );
-
-  const fetcDbPipelines = async () => {
-    try {
-      if (!selectedRepo) {
-        console.error("No repository found for the selected organization.");
-        return;
-      }
-
-      const pipelines = await fetchRepositoryPipelineList(
-        selectedOrg.id,
-        selectedRepo.id
-      );
-
-      return pipelines || [];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      return;
-    }
-  };
+  const pipelines = useSelector(getPipelines);
 
   useEffect(() => {
+    if (organizations.length > 0) {
+      const selectedOrg = organizations[0];
+      if (selectedOrg) {
+        setOrgId(selectedOrg.id);
+        const selectedRepo = repositories.filter(
+          (repo) => repo.organizationId === selectedOrg.id
+        )[0];
+        if (selectedRepo) {
+          setRepoId(selectedRepo.id);
+        }
+      }
+    }
+  }, [organizations, repositories]);
+
+  useEffect(() => {
+    const fetcDbPipelines = async () => {
+      try {
+        if (!repoId) {
+          console.error("No repository found for the selected organization.");
+          return;
+        }
+
+        const pipelines = await fetchRepositoryPipelineList(orgId, repoId);
+
+        return pipelines || [];
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        return;
+      }
+    };
+
     if (pipelines.length > 0) {
       console.log(pipelines);
 
@@ -122,7 +132,7 @@ export default function AutoGrid() {
     };
 
     updatePipelines();
-  }, []);
+  }, [orgId, repoId]);
 
   const createNewPipeline = () => {
     dispatch(
@@ -135,67 +145,6 @@ export default function AutoGrid() {
       navigate("/pipeline");
     }
   };
-
-  // pipelines.map(({ pipeline: flowData, id, name }) => {
-  //   const nodes = flowData.nodes;
-  //   const edges = flowData.edges;
-  //   const pipelineId = id;
-  //   const container = document.createElement("div");
-  //   container.style.position = "absolute";
-  //   container.style.top = "-10000px";
-  //   container.style.width = "800px";
-  //   container.style.height = "600px";
-  //   container.id = pipelineId;
-
-  //   document.body.appendChild(container);
-
-  //   const root = createRoot(container);
-  //   root.render(<FlowDiagram nodes={nodes} edges={edges} />);
-
-  //   setTimeout(() => {
-  //     const width = 800;
-  //     const height = 600;
-
-  //     const nodesBounds = getNodesBounds(nodes!);
-  //     const { x, y, zoom } = getViewportForBounds(
-  //       nodesBounds,
-  //       width,
-  //       height,
-  //       0.5,
-  //       2,
-  //       1
-  //     );
-
-  //     const validPipelineId = CSS.escape(pipelineId);
-
-  //     const element = document.querySelector(
-  //       `#${validPipelineId} .react-flow__viewport`
-  //     ) as HTMLElement;
-
-  //     if (element) {
-  //       toPng(element, {
-  //         backgroundColor: "#333",
-  //         width: width,
-  //         height: height,
-  //         style: {
-  //           width: `${width}px`,
-  //           height: `${height}px`,
-  //           transform: `translate(${x}px, ${y}px) scale(${zoom})`,
-  //         },
-  //       })
-  //         .then((dataUrl) => {
-  //           dispatch(setImageData({ id: pipelineId, imgData: dataUrl }));
-  //           document.body.removeChild(container);
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error generating PNG:", error);
-  //           document.body.removeChild(container);
-  //         });
-  //     } else {
-  //       console.error(`Element not found for pipeline: ${pipelineId}`);
-  //     }
-  //   }, 1000);
-  // });
 
   // Helper to retry finding the element with a delay (retry for 500ms with small intervals)
   const waitForElement = async (
@@ -313,6 +262,13 @@ export default function AutoGrid() {
     }
   }, [pipelines, dispatch]);
 
+  const handlePipelineDelete = (deletedPipelineId: string) => {
+    const updatedPipelines = pipelines.filter(
+      (pipeline) => pipeline.id !== deletedPipelineId
+    );
+    dispatch(setPipelines(updatedPipelines));
+  };
+
   return (
     <>
       <Box sx={{ flexGrow: 1, flexBasis: "100%" }}>
@@ -342,7 +298,10 @@ export default function AutoGrid() {
                     <PipelineCard
                       id={id}
                       name={name}
+                      orgId={orgId}
+                      repoId={repoId}
                       imgData={imgData}
+                      onDelete={handlePipelineDelete}
                     ></PipelineCard>
                   </Grid>
                 ))}

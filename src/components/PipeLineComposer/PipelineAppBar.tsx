@@ -2,13 +2,13 @@ import { AppBar, Box, Button, TextField, Toolbar, Typography } from "@mui/materi
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getActiveFlowData, getActivePipeline } from "../../redux/selectors";
+import { getActiveFlowData, getActivePipeline, getPipelines } from "../../redux/selectors";
 import { useState } from "react";
 import { updatePipelineName } from "../../redux/slices/pipelineSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import { Node } from "reactflow";
-import { DataSinkNodeData, DataSourceNodeData, OperatorNodeData, PipelineData } from "../../redux/states/pipelineState";
-import { putCommandStart, putExecution, putPipeline } from "../../services/backendAPI";
+import { DataSinkNodeData, DataSourceNodeData, OperatorNodeData, OrganizationNodeData, PipelineData } from "../../redux/states/pipelineState";
+import { editPipeline, putCommandStart, putExecution, putPipeline } from "../../services/backendAPI";
 import { getOrganizations, getRepositories } from "../../redux/selectors/apiSelector";
 import { getHandleId, getNodeId } from "./Flow";
 
@@ -29,7 +29,8 @@ export default function PipelineAppBar() {
   const organizations = useSelector(getOrganizations)
   const repositories = useSelector(getRepositories)
 
-  const pipelineName = useSelector(getActivePipeline)?.name
+  const pipeline = useSelector(getActivePipeline)
+  const pipelineID = useSelector(getActivePipeline)?.id
 
   const setPipelineName = (name: string) => {
     dispatch(updatePipelineName(name))
@@ -65,18 +66,18 @@ export default function PipelineAppBar() {
               }
             }
           },
-          position: { x: 100, y: 100 },
+          position: { x: originalDataSink.position.x, y: originalDataSink.position.y },
           id: getNodeId(),
-          width: 100,
-          height: 100,
+          width: originalDataSink.width,
+          height: originalDataSink.height,
         }
       }
     }).filter(node => node !== undefined) as any
 
     console.log(JSON.stringify(dataSinks))
 
-    const pipeline = {
-      name: pipelineName,
+    const pipelineJson = {
+      name: pipeline?.name ?? "",
       pipeline: {
         nodes: flowData?.nodes?.filter(node => node.type === 'dataSource').map(node => node as Node<DataSourceNodeData>).map(node => {
           return {
@@ -92,7 +93,7 @@ export default function PipelineAppBar() {
                 },
               }
             },
-            width: 100, height: 100, position: { x: 100, y: 100 }, id: node.id, label: "",
+            width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
           } as any
         }).concat(
           flowData?.nodes?.filter(node => node.type === 'operator').map(node => node as Node<OperatorNodeData>).map(node => {
@@ -108,10 +109,28 @@ export default function PipelineAppBar() {
                   }
                 }
               },
-              width: 100, height: 100, position: { x: 100, y: 100 }, id: node.id, label: "",
+              width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
             } as any
-          })
-        ).concat(dataSinks),
+          }).concat(
+            flowData?.nodes?.filter(node => node.type === 'organization').map(node => node as Node<OrganizationNodeData>).map(node => {
+              return {
+                type: node.type, data: {
+                  ...node.data,
+                  instantiationData: {
+                    resource: {},
+                    organization: {
+                      //...node?.data?.instantiationData.algorithm,
+                      name: node?.data?.instantiationData.organization?.name,
+                      organizationId: node.data.instantiationData.organization?.id,
+                      apiUrl: node?.data?.instantiationData.organization?.apiUrl,
+                    }
+                  }
+                },
+                width: node.width, height: node.height, position: { x: node.position.x, y: node.position.y }, id: node.id, label: "",
+              } as any
+            }))
+        )
+        .concat(dataSinks),
         edges: edges.map(edge => {
           return { sourceHandle: edge.sourceHandle, targetHandle: edge.targetHandle }
         })
@@ -124,24 +143,38 @@ export default function PipelineAppBar() {
     return {
       org: selectedOrg,
       repo: selectedRepo,
-      pipeline: pipeline
+      pipeline: pipelineJson
     };
   }
 
   const savePipeline = async () => {
     const {org, repo, pipeline} = generateJson();
+    console.log(pipelineID);
+    console.log(pipeline);
+    console.log(pipeline.name);
+    
 
-    const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
-    console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
+    if (pipelineID?.startsWith('pipeline')){
+      const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
+      console.log(`Pipeline with id: ${pipelineId} has been saved successfully!`);
+      window.location.href=process.env.REACT_APP_FRONTEND_URL+''
+      
+    }
+   else if (pipelineID){
+    const pipelineId = await editPipeline(org.id, repo.id, pipelineID, pipeline);    
+    console.log(`Pipeline with id: ${pipelineID} has been edited successfully!`);
+   }
   };
+
+  const gotoExecutions = () => navigate(`/pipeline/${pipeline?.id}/executions`);
 
   const deployPipeline = async () => {
     const {org, repo, pipeline} = generateJson();
 
-    /// TODO: don't save it twice
-    const pipelineId = await putPipeline(org.id, repo.id, pipeline)
-    const executionId = await putExecution(org.id, repo.id, pipelineId)
-    await putCommandStart(org.id, repo.id, pipelineId, executionId)
+    // /// TODO: don't save it twice
+    // const pipelineId = await putPipeline(org.id, repo.id, pipeline)
+    // const executionId = await putExecution(org.id, repo.id, pipelineId)
+    // await putCommandStart(org.id, repo.id, pipelineId, executionId)
   };
 
   return (
@@ -153,7 +186,7 @@ export default function PipelineAppBar() {
         <Box sx={{ width: '100%', textAlign: 'center' }}>
           {isEditing ? (
             <TextField
-              value={pipelineName}
+              value={pipeline?.name}
               onChange={(event) => setPipelineName(event?.target.value as string)}
               autoFocus
               onBlur={handleFinishEditing}
@@ -161,13 +194,16 @@ export default function PipelineAppBar() {
             />
           ) : (
             <Box onClick={handleStartEditing} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
-              <Typography>{pipelineName}</Typography>
+              <Typography>{pipeline?.name}</Typography>
               <EditIcon sx={{ paddingLeft: '10px' }} />
             </Box>
           )}
         </Box>
         <Button onClick={() => savePipeline()}>
           <Typography variant="body1" sx={{ color: "white" }}>Save pipeline</Typography>
+        </Button>
+        <Button onClick={() => gotoExecutions()}>
+          <Typography variant="body1" sx={{ color: "white" }}>See Executions</Typography>
         </Button>
         <Button onClick={() => deployPipeline()}>
           <Typography variant="body1" sx={{ color: "white" }}>Deploy pipeline</Typography>

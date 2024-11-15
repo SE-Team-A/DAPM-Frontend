@@ -9,19 +9,22 @@ import rootReducer from "./redux/slices";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import {
-  RouterProvider,
   createBrowserRouter,
-  createHashRouter,
   BrowserRouter as Router,
   Route,
   Routes,
 } from "react-router-dom";
 import PipelineComposer from "./routes/PipeLineComposer";
 import UserPage from "./routes/OverviewPage";
-import { loadState, saveState } from "./redux/browser-storage";
+import { loadState } from "./redux/browser-storage";
 import AuthProvider from "./auth/authProvider";
 import PrivateRoute from "./router/privateRoute";
 import Login from "./routes/LoginPage";
+import { Toaster } from "react-hot-toast";
+import PrivateAdminRoute from "./router/privateAdminRoute";
+import AdminDashboard from "./routes/DashboardPage";
+import UserProvider from "./auth/usersProvider";
+import PipelineExecutions from "./routes/PipelineExecutions";
 
 // Configure redux-persist
 const persistConfig = {
@@ -67,6 +70,10 @@ const router = createBrowserRouter([
     path: "/pipeline",
     element: <PipelineComposer />,
   },
+  {
+    path: "/admin-dashboard",
+    element: <AdminDashboard />,
+  },
 ]);
 
 export default function App() {
@@ -74,6 +81,7 @@ export default function App() {
     <ThemeProvider theme={darkTheme}>
       <Router>
         <AuthProvider>
+          <UserProvider>
           <div className="App">
             <Provider store={store}>
               {/* <RouterProvider router={router} /> */}
@@ -82,10 +90,16 @@ export default function App() {
                 <Route element={<PrivateRoute />}>
                   <Route path="/pipeline" element={<PipelineComposer />} />
                   <Route path="/" element={<UserPage />} />
+                  <Route element={<PrivateAdminRoute />}>
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  </Route>
+                  <Route path="/pipeline/:id/executions" element={<PipelineExecutions />}></Route>
                 </Route>
               </Routes>
             </Provider>
           </div>
+          </UserProvider>
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </Router>
     </ThemeProvider>
