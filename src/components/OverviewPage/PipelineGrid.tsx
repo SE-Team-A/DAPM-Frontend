@@ -91,20 +91,18 @@ export default function AutoGrid() {
         }
       }
     }
-  }, [organizations, repositories])
+  }, [organizations, repositories]);
 
   useEffect(() => {
-    
-  
     const fetcDbPipelines = async () => {
       try {
         if (!repoId) {
           console.error("No repository found for the selected organization.");
           return;
         }
-  
+
         const pipelines = await fetchRepositoryPipelineList(orgId, repoId);
-  
+
         return pipelines || [];
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -300,8 +298,8 @@ export default function AutoGrid() {
                     <PipelineCard
                       id={id}
                       name={name}
-                      orgId={"id"}
-                      repoId={"id"}
+                      orgId={orgId}
+                      repoId={repoId}
                       imgData={imgData}
                       onDelete={handlePipelineDelete}
                     ></PipelineCard>

@@ -13,14 +13,14 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 interface DeleteMemberPopupProps {
     openDeleteMemberPopup: boolean;
     setOpenDeleteMemberPopup: (value: boolean) => void;
+    id: string;
+    handleDelete: (id: string) => void;
 }
 
 
-const DeleteMemberPopup: React.FC<DeleteMemberPopupProps> = ({ openDeleteMemberPopup, setOpenDeleteMemberPopup }) => {
+const DeleteMemberPopup: React.FC<DeleteMemberPopupProps> = ({ openDeleteMemberPopup, setOpenDeleteMemberPopup, id, handleDelete }) => {
     const user = useAuth();
-    console.log(user?.loadingRegister)
 
-    const handleDelete = () => { }
 
     return (
         <Dialog open={openDeleteMemberPopup} onClose={() => setOpenDeleteMemberPopup(false)} className="relative z-40 ">
@@ -37,7 +37,7 @@ const DeleteMemberPopup: React.FC<DeleteMemberPopupProps> = ({ openDeleteMemberP
                     <h3 className='text-[#959595] w-full text-center'>Do you really want to delete this records?This process cannot be undone</h3>
                     <div className="w-full flex justify-center mt-6 h-fit text-white">
                         <button onClick={() => { setOpenDeleteMemberPopup(false) }} className="text-white text-base p-2 px-12  bg-[#959595] mr-1">Cancel</button>
-                        <div onClick={handleDelete} className="text-white text-base  p-2 px-12 bg-red-600 cursor-pointer text-center">Delete</div>
+                        <div onClick={()=>{handleDelete(id); }} className="text-white text-base  p-2 px-12 bg-red-600 cursor-pointer text-center">Delete</div>
                     </div>
 
                     {/* {user?.loadingRegister &&

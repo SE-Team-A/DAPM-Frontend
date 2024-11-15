@@ -5,9 +5,7 @@ import { json } from "stream/consumers";
 
 // TODO: Put these into .env
 const vmPath = `dapm1.compute.dtu.dk:5000`;
-const localPath = `localhost:5281`;
 
-const path = localPath;
 const token = localStorage.getItem("token");
 const headers = {
   Authorization: `Bearer ${token}`,
@@ -16,9 +14,12 @@ const headers = {
 
 export async function fetchStatus(ticket: string) {
   try {
-    const response = await fetch(`http://` + path + `/status/${ticket}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/status/${ticket}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -33,9 +34,12 @@ export async function fetchStatus(ticket: string) {
 
 export async function fetchFile(ticket: string) {
   try {
-    const response = await fetch(`http://` + path + `/status/${ticket}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/status/${ticket}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -49,9 +53,12 @@ export async function fetchFile(ticket: string) {
 
 export async function fetchOrganizations() {
   try {
-    const response = await fetch(`http://` + path + `/organizations`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/organizations`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Fetching orgs, Network response was not ok");
     }
@@ -89,9 +96,12 @@ export async function fetchOrganizations() {
 
 export async function fetchOrganisation(orgId: string) {
   try {
-    const response = await fetch(`http://` + path + `/Organizations/${orgId}`, {
-      headers,
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}`,
+      {
+        headers,
+      }
+    );
     if (!response.ok) {
       throw new Error("Fetching org, Network response was not ok");
     }
@@ -130,7 +140,7 @@ export async function fetchOrganisation(orgId: string) {
 export async function fetchOrganizationRepositories(orgId: string) {
   try {
     const response = await fetch(
-      `http://` + path + `/Organizations/${orgId}/repositories`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories`,
       { headers }
     );
     if (!response.ok) {
@@ -171,7 +181,7 @@ export async function fetchOrganizationRepositories(orgId: string) {
 export async function fetchRepository(orgId: string, repId: string) {
   try {
     const response = await fetch(
-      `http://` + path + `/Organizations/${orgId}/repositories/${repId}`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}`,
       { headers }
     );
     if (!response.ok) {
@@ -211,9 +221,7 @@ export async function fetchRepository(orgId: string, repId: string) {
 export async function fetchRepositoryResources(orgId: string, repId: string) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/resources`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/resources`,
       { headers }
     );
     if (!response.ok) {
@@ -259,9 +267,7 @@ export async function fetchResource(
 ) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/resources/${resId}`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/resources/${resId}`,
       { headers }
     );
     if (!response.ok) {
@@ -302,9 +308,7 @@ export async function fetchResource(
 export async function fetchRepositoryPipelines(orgId: string, repId: string) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/pipelines`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines`,
       { headers }
     );
     if (!response.ok) {
@@ -342,30 +346,41 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
   }
 }
 
-export async function fetchPipelineExecutions(pipelineId: string) {
-    const resp = await fetch('http://localhost:3000/mock/executions.mock.json'); // Swap this with the right url once the endpoint is ready
+export async function fetchPipelineExecutions(orgId: string, repId: string, pipelineId: string) {
+    const resp = await fetch(`${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipelineId}/executions`, {headers}); 
     if (!resp.ok) {
-      throw new Error("fetching pipelines, Network response was not ok");
+      throw new Error("fetching pipeline executions, Network response was not ok");
     }
-    return resp.json();
+    var json = await resp.json();
+
+    return json.result.pipelineExecutions;
 }
 
-/**
- * Author:
- * - Raihanullah Mehran
- *
- * Description:
- * This method fetches the pipelines from the database.
- */
+export async function addPipelineExecution(orgId: string, repId: string, pipelineId: string) {
+  
+  const resp = await fetch(
+    `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipelineId}/executions`,
+    {
+      method: "POST",
+      headers: headers,
+    }
+  );
+
+  if (!resp.ok) {
+    throw new Error("Add pipeline execution, Network response was not ok");
+  }
+  var json = await resp.json();
+
+  return json.result;
+}
+
 export async function fetchRepositoryPipelineList(
   orgId: string,
   repId: string
 ) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/pipeline`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipeline`,
       { headers }
     );
     if (!response.ok) {
@@ -387,10 +402,7 @@ export async function deletePipeline(
 ) {
   console.log("request sent");
 
-  const request =
-    `http://` +
-    path +
-    `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`;
+  const request = `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`;
 
   const response = await fetch(request, {
     method: "DELETE",
@@ -405,6 +417,7 @@ export async function deletePipeline(
   }
 
   const jsonData = await response.json();
+  console.log("DeletePipeline:", jsonData);
 
   // Fetch additional data recursively
   const getData = async (ticketId: string): Promise<any> => {
@@ -415,6 +428,8 @@ export async function deletePipeline(
     for (let retries = 0; retries < maxRetries; retries++) {
       try {
         const data = await fetchStatus(ticketId);
+        console.log("data", data);
+
         if (data.status) {
           return data.result;
         }
@@ -426,8 +441,6 @@ export async function deletePipeline(
         }
       }
     }
-    console.error("Failed to delete pipeline!");
-    throw new Error("Failed to delete pipeline!");
   };
 
   return await getData(jsonData.ticketId);
@@ -440,9 +453,7 @@ export async function fetchPipeline(
 ) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipId}`,
       { headers }
     );
     if (!response.ok) {
@@ -488,7 +499,7 @@ export async function putRepository(orgId: string, repositoryName: string) {
 
   try {
     const response = await fetch(
-      `http://` + path + `/Organizations/${orgId}/repositories`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories`,
       {
         method: "POST",
         headers: headers,
@@ -543,9 +554,7 @@ export async function putResource(
   headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/resources`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/resources`,
       {
         method: "POST",
         headers,
@@ -593,12 +602,12 @@ export async function editPipeline(
   orgId: string,
   repId: string,
   pipelineId: string,
-  pipelineData: any,
+  pipelineData: any
 ) {
   console.log(pipelineData);
   try {
     const response = await fetch(
-      `http://${path}/Organizations/${orgId}/repositories/${repId}/pipeline/${pipelineId}`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipeline/${pipelineId}`,
       {
         method: "PUT",
         headers: {
@@ -607,13 +616,13 @@ export async function editPipeline(
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(pipelineData),
-      },
+      }
     );
 
     if (!response.ok) {
       throw new Error("edit pipeline, Network response was not ok");
     }
-    console.log('eddited');
+    console.log("eddited");
     const jsonData = await response.json();
     // Fetch additional data recursively
     const getData = async (ticketId: string): Promise<any> => {
@@ -653,7 +662,7 @@ export async function putPipeline(
   console.log(pipelineData);
   try {
     const response = await fetch(
-      `http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines`,
       {
         method: "POST",
         headers: {
@@ -709,7 +718,7 @@ export async function putExecution(
   headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
-      `http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions`,
       {
         method: "POST",
         headers,
@@ -762,7 +771,7 @@ export async function putCommandStart(
   headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
-      `http://${path}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions/${exeId}/commands/start`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipeId}/executions/${exeId}/commands/start`,
       {
         method: "POST",
         headers,
@@ -814,9 +823,7 @@ export async function putOperator(
   headers.append("Authorization", `Bearer ${token}`);
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/Organizations/${orgId}/repositories/${repId}/resources/operators`,
+      `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/resources/operators`,
       {
         method: "POST",
         headers,
@@ -870,7 +877,7 @@ export async function PostNewPeer(domainName: string) {
     headers.append("Authorization", `Bearer ${token}`);
 
     const response = await fetch(
-      `http://` + path + `/system/collab-handshake`,
+      `${process.env.REACT_APP_API_URL}/system/collab-handshake`,
       {
         method: "POST",
         body: JSON.stringify({ targetPeerDomain: domainName }),
@@ -915,9 +922,7 @@ export async function downloadResource(
 ) {
   try {
     const response = await fetch(
-      `http://` +
-        path +
-        `/organizations/${organizationId}/repositories/${repositoryId}/resources/${resourceId}/file`,
+      `${process.env.REACT_APP_API_URL}/organizations/${organizationId}/repositories/${repositoryId}/resources/${resourceId}/file`,
       { headers }
     );
     if (!response.ok) {
@@ -966,10 +971,7 @@ export async function deleteResource(
 ): Promise<Response> {
   //const headers = new Headers()
   // headers.append("Authorization", `Bearer ${token}`);
-  const response01 =
-    `http://` +
-    path +
-    `/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`;
+  const response01 = `${process.env.REACT_APP_API_URL}/organizations/${orgId}/repositories/${repositoryId}/resources/${resourceId}`;
   try {
     const response = await fetch(response01, {
       method: "DELETE",

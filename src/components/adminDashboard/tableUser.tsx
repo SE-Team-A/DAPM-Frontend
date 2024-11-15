@@ -20,12 +20,19 @@ export default function TableUsers() {
     const userProvider = useUsers();
     const auth = useAuth();
 
+    function handleDelete(id: string) {
+        //handle delete on the useState users
+        console.log(id)
+        userProvider?.deleteUser({id});
+        setOpenDeleteMemberPopup(false);
+    }
+
 
     useEffect(() => {
 
         const getUsers = async () => {
             try {
-                const response = await fetch("http://localhost:5281/authentication/users", {
+                const response = await fetch(process.env.REACT_APP_API_URL + "/authentication/users", {
                     method: "GET",
                     // mode: 'no-cors', 
                     headers: {
@@ -40,7 +47,7 @@ export default function TableUsers() {
                     // setLoadingRegister(true)
                     await new Promise((resolve) => setTimeout(resolve, 2000));
                     // setLoadingRegister(false)
-                    const statusResponse = await fetch(`http://localhost:5281/status/${ticketId}`, {
+                    const statusResponse = await fetch(process.env.REACT_APP_API_URL + `/status/${ticketId}`, {
                         method: "GET",
                         // mode: 'no-cors', 
                         headers: {
@@ -145,7 +152,7 @@ export default function TableUsers() {
                                 }
                           
                             </div>
-                            <DeleteMemberPopup openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
+                            <DeleteMemberPopup id={user.id} handleDelete={handleDelete} openDeleteMemberPopup={openDeleteMemberPopup} setOpenDeleteMemberPopup={setOpenDeleteMemberPopup}></DeleteMemberPopup>
                             {/* {   !(auth?.user?.role === "Admin" && (user.role === "Admin"||user.role === "SuperAdmin") )?
                                 : <p className="text-red-400">No permission</p>
                             } */}
