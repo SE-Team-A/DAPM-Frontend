@@ -346,12 +346,32 @@ export async function fetchRepositoryPipelines(orgId: string, repId: string) {
   }
 }
 
-export async function fetchPipelineExecutions(pipelineId: string) {
-  const resp = await fetch(`http://localhost:3000/mock/executions.mock.json`); // Swap this with the right url once the endpoint is ready
+export async function fetchPipelineExecutions(orgId: string, repId: string, pipelineId: string) {
+    const resp = await fetch(`${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipelineId}/executions`, {headers}); 
+    if (!resp.ok) {
+      throw new Error("fetching pipeline executions, Network response was not ok");
+    }
+    var json = await resp.json();
+
+    return json.result.pipelineExecutions;
+}
+
+export async function addPipelineExecution(orgId: string, repId: string, pipelineId: string) {
+  
+  const resp = await fetch(
+    `${process.env.REACT_APP_API_URL}/Organizations/${orgId}/repositories/${repId}/pipelines/${pipelineId}/executions`,
+    {
+      method: "POST",
+      headers: headers,
+    }
+  );
+
   if (!resp.ok) {
-    throw new Error("fetching pipelines, Network response was not ok");
+    throw new Error("Add pipeline execution, Network response was not ok");
   }
-  return resp.json();
+  var json = await resp.json();
+
+  return json.result;
 }
 
 export async function fetchRepositoryPipelineList(
