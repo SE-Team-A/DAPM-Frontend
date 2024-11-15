@@ -60,3 +60,18 @@ To be able to use it the computer has to be connected to DTU Compute's VPN.
 2. Access control
     - Added login form and enforced authentication for all users
     - Created user creation form for 'admin' role users
+  
+
+
+
+### Release 2 (15-11-2024)
+
+#### Access control
+- Added admin dashboard for user management
+- Implemented user role assignment
+- Implemented user deletion
+
+#### Core functionality
+- Added pipeline editing workflow
+- Store pipeline executions persistently
+- Implemented pipeline deletion workflow
