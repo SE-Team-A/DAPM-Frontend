@@ -12,7 +12,7 @@ import { getOrganizations, getRepositories, getResources } from '../../redux/sel
 import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
 import { Organization, Repository, Resource } from '../../redux/states/apiState';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box, Button, IconButton, Snackbar } from '@mui/material';
+import { Box, Button, IconButton, Snackbar, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import ResourceUploadButton from './Buttons/ResourceUploadButton';
 import { deleteResource, downloadResource } from '../../services/backendAPI';
 import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
@@ -41,6 +41,8 @@ export default function PersistentDrawerLeft() {
   const auth = useAuth();
   const navigate = useNavigate();
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(null);
 
   useEffect(() => {
       dispatch(organizationThunk());
@@ -55,12 +57,26 @@ export default function PersistentDrawerLeft() {
   }, [repositories]);
 
   const handleDelete = async (resource: Resource) => {
-    setDeleteAlertOpen(true); // Show the Snackbar
-    console.log('Deleting resource:', resource);
-    await deleteResource(resource.organizationId, resource.repositoryId, resource.id);
+    setResourceToDelete(resource);
+    setConfirmDelete(true); // Show confirmation dialog
+  };
 
-    // Delay Snackbar close manually after 20 seconds
-    setTimeout(() => setDeleteAlertOpen(false), 20000);
+  const handleDeleteConfirm = async () => {
+    if (resourceToDelete) {
+      await deleteResource(
+        resourceToDelete.organizationId,
+        resourceToDelete.repositoryId,
+        resourceToDelete.id
+      );
+      setDeleteAlertOpen(true); // Show Snackbar
+      setConfirmDelete(false);  // Close dialog
+      setTimeout(() => setDeleteAlertOpen(false), 20000); // Close Snackbar after 20 seconds
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDelete(false); // Close dialog without deleting
+    setResourceToDelete(null);
   };
 
   const handleDownload = async (resource: Resource) => {
@@ -247,12 +263,36 @@ export default function PersistentDrawerLeft() {
         <LogoutButton />
       </Drawer>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={confirmDelete}
+        onClose={handleDeleteCancel}
+        aria-labelledby="confirm-delete-title"
+        aria-describedby="confirm-delete-description"
+      >
+        <DialogTitle id="confirm-delete-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-delete-description">
+            Are you sure you want to delete this resource? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar for delete confirmation */}
       <Snackbar
         open={deleteAlertOpen}
         message="Resource is getting deleted... Reload the page"
         onClose={() => setDeleteAlertOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={20000}
       />
     </>
   );
