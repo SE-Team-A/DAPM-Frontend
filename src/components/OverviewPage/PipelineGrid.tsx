@@ -41,6 +41,7 @@ import throttle from "lodash/throttle";
 import { Root } from "react-dom/client";
 import { setPriority } from "os";
 import React from "react";
+import { PipelineOverviewHeader } from "./Pipelines/PipelineOverviewHeader";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -271,6 +272,7 @@ export default function AutoGrid() {
 
   return (
     <>
+      <PipelineOverviewHeader orgId={orgId} repoId={repoId} />
       <Box sx={{ flexGrow: 1, flexBasis: "100%" }}>
         <Button
           variant="contained"
