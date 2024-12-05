@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import user_sample from "../../assets/user_sample.png";
+import { useNavigate } from "react-router-dom";
 
 interface DecodedToken extends JwtPayload {
   sub?: string;
@@ -20,6 +21,7 @@ interface DecodedToken extends JwtPayload {
 export const TopBar: React.FC = () => {
   const [userInfo, setUserInfo] = useState<DecodedToken | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,6 +37,11 @@ export const TopBar: React.FC = () => {
             (expiryTime - currentTime) / 1000,
             0
           );
+
+          if (initialTimeLeft === 0) {
+            navigate("/login");
+          }
+
           setTimeLeft(initialTimeLeft);
 
           const intervalId = setInterval(() => {
