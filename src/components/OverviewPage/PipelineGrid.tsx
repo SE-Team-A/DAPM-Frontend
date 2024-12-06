@@ -42,6 +42,7 @@ import { Root } from "react-dom/client";
 import { setPriority } from "os";
 import React from "react";
 import { PipelineOverviewHeader } from "./Pipelines/PipelineOverviewHeader";
+import { useAuth } from "../../auth/authProvider";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -72,6 +73,7 @@ interface ImageData {
 export default function AutoGrid() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const auth = useAuth();
   const [orgId, setOrgId] = useState("");
   const [repoId, setRepoId] = useState("");
 
@@ -274,18 +276,20 @@ export default function AutoGrid() {
     <>
       <PipelineOverviewHeader orgId={orgId} repoId={repoId} />
       <Box sx={{ flexGrow: 1, flexBasis: "100%" }}>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => createNewPipeline()}
-          sx={{
-            backgroundColor: "#bbb",
-            "&:hover": { backgroundColor: "#eee" },
-            marginBlockStart: "10px",
-          }}
-        >
-          Create New
-        </Button>
+        {auth?.user?.role !== "Guest" && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => createNewPipeline()}
+            sx={{
+              backgroundColor: "#bbb",
+              "&:hover": { backgroundColor: "#eee" },
+              marginBlockStart: "10px",
+            }}
+          >
+            Create New
+          </Button>
+        )}
 
         {pipelines.length ? (
           <div>

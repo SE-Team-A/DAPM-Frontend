@@ -11,6 +11,7 @@ import PipelineActionMenu from "./Pipelines/PipelineActionMenu";
 import { handleDeletePipeline } from "./Pipelines/utils/PipelineActions";
 import { handleUpdatePipeline } from "./Pipelines/utils/PipelineActions";
 import ConfirmDeleteDialog from "./Pipelines/ConfirmDeleteDialog";
+import { useAuth } from "../../auth/authProvider";
 
 export interface PipelineCardProps {
   id: string;
@@ -31,6 +32,7 @@ export default function MediaCard({
 }: PipelineCardProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const auth = useAuth();
   const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
 
   const handleOpenDialog = () => {
@@ -78,10 +80,12 @@ export default function MediaCard({
         </CardActionArea>
 
         {/* Use the new PipelineActionMenu component */}
-        <PipelineActionMenu
-          onDeleteClick={handleOpenDialog}
-          onUpdateClick={handleUpdateClick}
-        />
+        {auth?.user?.role !== "Guest" && (
+          <PipelineActionMenu
+            onDeleteClick={handleOpenDialog}
+            onUpdateClick={handleUpdateClick}
+          />
+        )}
       </Card>
       {/* Confirmation Dialog */}
       <ConfirmDeleteDialog

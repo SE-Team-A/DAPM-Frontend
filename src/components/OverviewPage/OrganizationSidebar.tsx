@@ -1,28 +1,50 @@
-import { styled } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { getOrganizations, getRepositories, getResources } from '../../redux/selectors/apiSelector';
-import { organizationThunk, repositoryThunk, resourceThunk } from '../../redux/slices/apiSlice';
-import { Organization, Repository, Resource } from '../../redux/states/apiState';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Box, Button, IconButton, Snackbar, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import ResourceUploadButton from './Buttons/ResourceUploadButton';
-import { deleteResource, downloadResource } from '../../services/backendAPI';
-import CreateRepositoryButton from './Buttons/CreateRepositoryButton';
-import AddOrganizationButton from './Buttons/AddOrganizationButton';
-import OperatorUploadButton from './Buttons/OperatorUploadButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from "@mui/material/styles";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import {
+  getOrganizations,
+  getRepositories,
+  getResources,
+} from "../../redux/selectors/apiSelector";
+import {
+  organizationThunk,
+  repositoryThunk,
+  resourceThunk,
+} from "../../redux/slices/apiSlice";
+import {
+  Organization,
+  Repository,
+  Resource,
+} from "../../redux/states/apiState";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import {
+  Box,
+  Button,
+  IconButton,
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
+import ResourceUploadButton from "./Buttons/ResourceUploadButton";
+import { deleteResource, downloadResource } from "../../services/backendAPI";
+import CreateRepositoryButton from "./Buttons/CreateRepositoryButton";
+import AddOrganizationButton from "./Buttons/AddOrganizationButton";
+import OperatorUploadButton from "./Buttons/OperatorUploadButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { LogoutButton } from "../logout/logoutButton";
 import { useAuth } from "../../auth/authProvider";
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { HomePage } from "./HomePage";
 
 const drawerWidth = 240;
@@ -42,10 +64,12 @@ export default function PersistentDrawerLeft() {
   const navigate = useNavigate();
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(null);
+  const [resourceToDelete, setResourceToDelete] = useState<Resource | null>(
+    null
+  );
 
   useEffect(() => {
-      dispatch(organizationThunk());
+    dispatch(organizationThunk());
   }, []);
 
   useEffect(() => {
@@ -69,7 +93,7 @@ export default function PersistentDrawerLeft() {
         resourceToDelete.id
       );
       setDeleteAlertOpen(true); // Show Snackbar
-      setConfirmDelete(false);  // Close dialog
+      setConfirmDelete(false); // Close dialog
       setTimeout(() => setDeleteAlertOpen(false), 20000); // Close Snackbar after 20 seconds
     }
   };
@@ -92,16 +116,16 @@ export default function PersistentDrawerLeft() {
     const response = await fetch(url);
     const blob = await response.blob(); // Get the file data as a Blob
     const fileUrl = URL.createObjectURL(blob); // Create a temporary object URL
-  
+
     // Open the file in a new tab
     window.open(fileUrl, "_blank");
-  
+
     // Optional: If you also want to allow downloading
     const anchor = document.createElement("a");
     anchor.href = fileUrl;
     anchor.download = fileName;
     anchor.click();
-  
+
     // Clean up the object URL after use to free up memory
     URL.revokeObjectURL(fileUrl);
   }
@@ -132,8 +156,8 @@ export default function PersistentDrawerLeft() {
       >
         <Divider />
         <HomePage />
-        {
-          (auth?.user?.role === "Admin" || auth?.user?.role === "SuperAdmin") &&
+        {(auth?.user?.role === "Admin" ||
+          auth?.user?.role === "SuperAdmin") && (
           <DrawerHeader>
             <Typography
               sx={{ width: "100%", textAlign: "center" }}
@@ -143,9 +167,16 @@ export default function PersistentDrawerLeft() {
             >
               Dashboard
             </Typography>
-            <Button onClick={() => { navigate("/admin-dashboard") }} sx={{ backgroundColor: "gray", padding: "1px", color: "black" }} >{">"}</Button>
+            <Button
+              onClick={() => {
+                navigate("/admin-dashboard");
+              }}
+              sx={{ backgroundColor: "gray", padding: "1px", color: "black" }}
+            >
+              {">"}
+            </Button>
           </DrawerHeader>
-        }
+        )}
 
         <DrawerHeader>
           <Typography
@@ -156,7 +187,8 @@ export default function PersistentDrawerLeft() {
           >
             Organisations
           </Typography>
-          <AddOrganizationButton />
+
+          {auth?.user?.role !== "Guest" && <AddOrganizationButton />}
         </DrawerHeader>
 
         <List>
@@ -194,12 +226,14 @@ export default function PersistentDrawerLeft() {
                       }}
                     >
                       <p style={{ fontSize: "0.9rem" }}>Resources</p>
-                      <Box sx={{ marginLeft: "auto" }}>
-                        <ResourceUploadButton
-                          orgId={repository.organizationId}
-                          repId={repository.id}
-                        />
-                      </Box>
+                      {auth?.user?.role !== "Guest" && (
+                        <Box sx={{ marginLeft: "auto" }}>
+                          <ResourceUploadButton
+                            orgId={repository.organizationId}
+                            repId={repository.id}
+                          />
+                        </Box>
+                      )}
                     </div>
                     {resources.map((resource) =>
                       resource.repositoryId === repository.id &&
@@ -214,9 +248,15 @@ export default function PersistentDrawerLeft() {
                               secondaryTypographyProps={{ fontSize: "0.8rem" }}
                             />
                           </ListItemButton>
-                          <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(resource)}>
-                            <DeleteIcon />
-                          </IconButton>
+                          {auth?.user?.role !== "Guest" && (
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              onClick={() => handleDelete(resource)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
                         </ListItem>
                       ) : (
                         ""
@@ -231,12 +271,14 @@ export default function PersistentDrawerLeft() {
                       }}
                     >
                       <p style={{ fontSize: "0.9rem" }}>Operators</p>
-                      <Box sx={{ marginLeft: "auto" }}>
-                        <OperatorUploadButton
-                          orgId={repository.organizationId}
-                          repId={repository.id}
-                        />
-                      </Box>
+                      {auth?.user?.role !== "Guest" && (
+                        <Box sx={{ marginLeft: "auto" }}>
+                          <OperatorUploadButton
+                            orgId={repository.organizationId}
+                            repId={repository.id}
+                          />
+                        </Box>
+                      )}
                     </div>
                     {resources.map((resource) =>
                       resource.repositoryId === repository.id &&
@@ -259,17 +301,19 @@ export default function PersistentDrawerLeft() {
                 )
               )}
               <ListItem sx={{ justifyContent: "center" }}>
-                <Box
-                  sx={{
-                    width: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <CreateRepositoryButton orgId={organization.id} />
-                </Box>
+                {auth?.user?.role !== "Guest" && (
+                  <Box
+                    sx={{
+                      width: "auto",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <CreateRepositoryButton orgId={organization.id} />
+                  </Box>
+                )}
               </ListItem>
             </>
           ))}
@@ -287,7 +331,8 @@ export default function PersistentDrawerLeft() {
         <DialogTitle id="confirm-delete-title">{"Confirm Delete"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-delete-description">
-            Are you sure you want to delete this resource? This action cannot be undone.
+            Are you sure you want to delete this resource? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -305,7 +350,7 @@ export default function PersistentDrawerLeft() {
         open={deleteAlertOpen}
         message="Resource is getting deleted... Reload the page"
         onClose={() => setDeleteAlertOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         autoHideDuration={20000}
       />
     </>
