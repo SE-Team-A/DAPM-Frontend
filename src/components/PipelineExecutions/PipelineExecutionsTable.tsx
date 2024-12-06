@@ -18,6 +18,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { red } from "@mui/material/colors";
 import toast from "react-hot-toast";
 import { exec } from "child_process";
+import { useAuth } from "../../auth/authProvider";
 
 type Props = {
   pid: string;
@@ -57,6 +58,7 @@ function PipelineExecutionsTable(props: Props) {
   const [executions, setExecutions] = useState<PipelineExecution[]>([]);
   const [logOpen, setLogOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState("");
+  const auth = useAuth();
 
   const { pid, orgId, repId } = props;
 
@@ -157,6 +159,7 @@ function PipelineExecutionsTable(props: Props) {
                     </Tooltip>
                   )}
                 </div>
+                {auth?.user?.role !== "Guest" && (
                 <div className="table-row-item w-1/5">
                   {(ex.state === "Running" && (
                     <Tooltip title="Stop Execution">
@@ -179,7 +182,7 @@ function PipelineExecutionsTable(props: Props) {
                         </button>
                       </Tooltip>
                     ))}
-                </div>
+                </div>)}
               </div>
             ))
           ) : (
@@ -191,6 +194,7 @@ function PipelineExecutionsTable(props: Props) {
           )}
         </div>
       </div>
+      {auth?.user?.role !== "Guest" && (
       <div className="flex justify-end mt-2">
         <button
           onClick={() => newExecution()}
@@ -198,7 +202,7 @@ function PipelineExecutionsTable(props: Props) {
         >
           New execution
         </button>
-      </div>
+      </div>)}
     </div>
   );
 }

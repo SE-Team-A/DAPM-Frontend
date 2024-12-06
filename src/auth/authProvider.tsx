@@ -158,6 +158,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken("");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        window.location.reload();
         navigate("/login")
     }
 
