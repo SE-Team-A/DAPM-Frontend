@@ -65,14 +65,14 @@ const PipelineActionMenu: React.FC<PipelineActionMenuProps> = ({
         >
           Delete
         </MenuItem>
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             handleMenuClose();
             onUpdateClick();
           }}
         >
           Update
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </>
   );
