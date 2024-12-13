@@ -1,3 +1,9 @@
+/**
+ * Author:
+ * - Ayat Al Rifai 
+ * - Thøger Bang Petersen
+ */
+
 import { AppBar, Box, Button, TextField, Toolbar, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useNavigate } from "react-router-dom";

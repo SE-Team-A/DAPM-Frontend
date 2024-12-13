@@ -657,6 +657,11 @@ export async function putResource(
     throw error; // Propagate error to the caller
   }
 }
+/**
+ * Author:
+ * - Ayat Al Rifai
+ * - Thøger Bang Petersen
+ */
 
 export async function editPipeline(
   orgId: string,
@@ -1023,7 +1028,10 @@ export async function downloadResource(
 }
 
 // Define the API function to "delete" (update) a resource with a PUT request
-//Ayat Al Rifai
+/**
+ * Author:
+ * - Ayat Al Rifai
+ */
 export async function deleteResource(
   orgId: string,
   repositoryId: string,

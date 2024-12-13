@@ -1,3 +1,7 @@
+/**
+ * Author:
+ * - Ayat Al Rifai
+ */
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
