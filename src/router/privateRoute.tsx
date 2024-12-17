@@ -1,3 +1,7 @@
+/**
+ * Authors:
+ * - Hussein Dirani s223518
+ */
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/authProvider";
 export default function PrivateRoute(){

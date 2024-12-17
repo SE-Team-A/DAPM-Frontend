@@ -1,3 +1,7 @@
+/**
+ * Authors:
+ * - Mahdi El Dirani s233031
+ */
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/authProvider";
 export default function PrivateAdminRoute(){

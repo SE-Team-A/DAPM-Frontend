@@ -1,7 +1,7 @@
 /**
  * Authors:
- * - Mahdi El Dirani 
- * - Hussein Dirani
+ * - Mahdi El Dirani s233031
+ * - Hussein Dirani s223518
  * 
  * Description:
  * This component manages authentication state, including login and signup actions, 
