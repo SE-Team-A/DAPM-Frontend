@@ -97,18 +97,18 @@ export default function PersistentDrawerLeft() {
     const blob = await response.blob(); // Get the file data as a Blob
     const fileUrl = URL.createObjectURL(blob); // Create a temporary object URL
   
-    // Open the file in a new tab
-    window.open(fileUrl, "_blank");
-  
-    // Optional: If you also want to allow downloading
+    // Trigger file download
     const anchor = document.createElement("a");
     anchor.href = fileUrl;
     anchor.download = fileName;
+    document.body.appendChild(anchor);
     anchor.click();
+    document.body.removeChild(anchor);
   
-    // Clean up the object URL after use to free up memory
+    // Clean up the object URL after use
     URL.revokeObjectURL(fileUrl);
   }
+  
 
   return (
     <>
