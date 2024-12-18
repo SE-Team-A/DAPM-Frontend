@@ -18,6 +18,12 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { red } from "@mui/material/colors";
 import toast from "react-hot-toast";
 import { exec } from "child_process";
+import AddExecutionDialog from "./AddExecutionDialog";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { Organization, Repository } from "../../redux/states/apiState";
+import { getOrganizations, getRepositories } from "../../redux/selectors/apiSelector";
+import { organizationThunk, repositoryThunk } from "../../redux/slices/apiSlice";
+import { PipelineState } from "../../redux/states/pipelineState";
 
 type Props = {
   pid: string;
@@ -54,40 +60,50 @@ const openLogPopup = (logs: string) => {};
 const stopExecution = (id: string) => {};
 
 function PipelineExecutionsTable(props: Props) {
+
+  const dispatch = useAppDispatch();
+  const organizations: Organization[] = useAppSelector(getOrganizations);
+  const repositories: Repository[] = useAppSelector(getRepositories);
+
+  const [pipeline, setPipeline] = useState(null);
   const [executions, setExecutions] = useState<PipelineExecution[]>([]);
-  const [logOpen, setLogOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState("");
+  const [logOpen, setLogOpen] = useState(false);
+  const [openAddExecutionDialog, setOpenAddExecutionDialog] = useState(false)
 
   const { pid, orgId, repId } = props;
 
   useEffect(() => {
-    updatePipelineExecutions();
+      dispatch(organizationThunk());
   }, []);
+ 
+  useEffect(() => {
+     dispatch(repositoryThunk(organizations));
+  }, [organizations]);
+
+  useEffect(() => {
+    updatePipelineExecutions();
+  }, [repositories]);
 
   const updatePipelineExecutions = () => {
     fetchPipelineExecutions(props.orgId, props.repId, props.pid).then(
       (resp) => {
-        console.log(resp);
         setExecutions(resp);
       },
     );
   };
 
   const newExecution = () => {
-    addPipelineExecution(props.orgId, props.repId, props.pid).then(
-      () => toast.success("Pipeline Execution Added!"),
-      () => toast.error("An error has occured during processing your request."),
-    );
+    setOpenAddExecutionDialog(true);
   };
 
   // please do updates properly in the future
   // it looks like this because I didn't have time to dfix the backend
-  const startVeryRetardedStatusUpdate = (executionId: string) => {
+  const startStatusUpdate = (executionId: string) => {
     // query executions status every 1 seconds
     const update = setInterval(() => {
       fetchPipelineExecutionStatus(orgId, repId, pid, executionId).then(
         (resp) => {
-          console.log(resp.result.status.state);
           setExecutions(
             executions.map((e) =>
               e.executionId == executionId
@@ -103,102 +119,116 @@ function PipelineExecutionsTable(props: Props) {
     // stop after 5 seconds
     setTimeout(() => clearInterval(update), 5000);
   };
-  // retardation finished
 
   const startExecution = (executionId: string) => {
     console.log(
-      `Heble Starting execution for org ${orgId} repo ${repId} pipeline ${pid} execution ${executionId}`,
+      `Starting execution for org ${orgId} repo ${repId} pipeline ${pid} execution ${executionId}`,
     );
 
     putCommandStart(orgId, repId, pid, executionId);
-    startVeryRetardedStatusUpdate(executionId);
+    startStatusUpdate(executionId);
   };
 
   return (
     <div className="mt-10">
-      <div className="my-table flex flex-wrap w-full ">
-        <div className="text-center text-white p-2 table-header flex w-full bg-[#292929] border-2 rounded border-white">
-          <div className="table-header-item w-1/5">Execution ID</div>
-          <div className="table-header-item w-1/5">Status</div>
-          <div className="table-header-item w-1/5">Logs</div>
-          <div className="table-header-item w-1/5">Error message</div>
-          <div className="table-header-item w-1/5">Actions</div>
-        </div>
-        <div className="table-body w-full ">
-          {executions.length ? (
-            executions.map((ex) => (
-              <div
-                key={ex.executionId}
-                className="text-center text-white p-2 table-header flex w-full  table-tr rounded  mt-2 drop-shadow-2xl"
-              >
-                <div className="table-row-item w-1/5">{ex.executionId}</div>
-                <div className="table-row-item w-1/5">
-                  <Tooltip title={ex.state}>
-                    <div>
-                      <StatusIcon status={ex.state} />
-                    </div>
-                  </Tooltip>
-                </div>
-                <div className="table-row-item w-1/5">
-                  {ex.logs && (
-                    <Tooltip title="Show logs">
-                      <button onClick={() => openLogPopup(ex.logs!)}>
-                        <LibraryBooksIcon />
-                      </button>
-                    </Tooltip>
-                  )}
-                </div>
-                <div className="table-row-item w-1/5">
-                  {ex.error && (
-                    <Tooltip title="Show error">
-                      <button onClick={() => openLogPopup(ex.error!)}>
-                        <AnnouncementIcon />
-                      </button>
-                    </Tooltip>
-                  )}
-                </div>
-                <div className="table-row-item w-1/5">
-                  {(ex.state === "Running" && (
-                    <Tooltip title="Stop Execution">
-                      <button onClick={() => stopExecution(ex.executionId!)}>
-                        <StopIcon />
-                      </button>
-                    </Tooltip>
-                  )) ||
-                    (ex.state === "Not Started" && (
-                      <Tooltip title="Start Execution">
-                        <button onClick={() => startExecution(ex.executionId!)}>
-                          <PlayCircleOutlineIcon />
-                        </button>
-                      </Tooltip>
-                    )) ||
-                    ((ex.state === "Completed" || ex.state === "Error") && (
-                      <Tooltip title="Rerun Execution">
-                        <button onClick={() => startExecution(ex.executionId!)}>
-                          <RestartAltIcon />
-                        </button>
-                      </Tooltip>
-                    ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="table-row  w-full">
-              <div className="table-row-item w-full text-center">
-                Loading...
-              </div>
+      {!repositories && <div>Fetching data...</div>}
+      {
+        repositories
+        &&
+        <div>
+          <div className="my-table flex flex-wrap w-full ">
+            <div className="text-center text-white p-2 table-header flex w-full bg-[#292929] border-2 rounded border-white">
+              <div className="table-header-item w-1/5">Execution ID</div>
+              <div className="table-header-item w-1/5">Status</div>
+              <div className="table-header-item w-1/5">Logs</div>
+              <div className="table-header-item w-1/5">Error message</div>
+              <div className="table-header-item w-1/5">Actions</div>
             </div>
-          )}
+            <div className="table-body w-full ">
+              {executions.length ? (
+                executions.map((ex) => (
+                  <div
+                    key={ex.executionId}
+                    className="text-center text-white p-2 table-header flex w-full  table-tr rounded  mt-2 drop-shadow-2xl"
+                  >
+                    <div className="table-row-item w-1/5">{ex.executionId}</div>
+                    <div className="table-row-item w-1/5">
+                      <Tooltip title={ex.state}>
+                        <div>
+                          <StatusIcon status={ex.state} />
+                        </div>
+                      </Tooltip>
+                    </div>
+                    <div className="table-row-item w-1/5">
+                      {ex.logs && (
+                        <Tooltip title="Show logs">
+                          <button onClick={() => openLogPopup(ex.logs!)}>
+                            <LibraryBooksIcon />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
+                    <div className="table-row-item w-1/5">
+                      {ex.error && (
+                        <Tooltip title="Show error">
+                          <button onClick={() => openLogPopup(ex.error!)}>
+                            <AnnouncementIcon />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
+                    <div className="table-row-item w-1/5">
+                      {(ex.state === "Running" && (
+                        <Tooltip title="Stop Execution">
+                          <button onClick={() => stopExecution(ex.executionId!)}>
+                            <StopIcon />
+                          </button>
+                        </Tooltip>
+                      )) ||
+                        (ex.state === "Not Started" && (
+                          <Tooltip title="Start Execution">
+                            <button onClick={() => startExecution(ex.executionId!)}>
+                              <PlayCircleOutlineIcon />
+                            </button>
+                          </Tooltip>
+                        )) ||
+                        ((ex.state === "Completed" || ex.state === "Error") && (
+                          <Tooltip title="Rerun Execution">
+                            <button onClick={() => startExecution(ex.executionId!)}>
+                              <RestartAltIcon />
+                            </button>
+                          </Tooltip>
+                        ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="table-row  w-full">
+                  <div className="table-row-item w-full text-center">
+                    Loading...
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={() => newExecution()}
+              className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm`}
+            >
+              New execution
+            </button>
+
+            <AddExecutionDialog 
+              openAddExecutionDialog={openAddExecutionDialog}
+              repos={repositories}
+              setOpenAddExecutionDialog={setOpenAddExecutionDialog}
+              orgId={props.orgId}
+              pId={props.pid}
+            />
+          </div>
         </div>
-      </div>
-      <div className="flex justify-end mt-2">
-        <button
-          onClick={() => newExecution()}
-          className={`px-2 py-1 w-24 bg-green-600 rounded-xl text-white text-sm`}
-        >
-          New execution
-        </button>
-      </div>
+      }
     </div>
   );
 }
