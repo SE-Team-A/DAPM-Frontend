@@ -93,7 +93,7 @@ export default function App() {
                   <Route element={<PrivateAdminRoute />}>
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   </Route>
-                  <Route path="/pipeline/:id/executions" element={<PipelineExecutions />}></Route>
+                  <Route path="/executions/:orgId/:repoId/:pId" element={<PipelineExecutions />}></Route>
                 </Route>
               </Routes>
             </Provider>
