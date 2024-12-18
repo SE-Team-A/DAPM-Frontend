@@ -6,6 +6,11 @@ import { addPipelineExecution } from '../../services/backendAPI';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 interface AddExecutionProps {
     openAddExecutionDialog: boolean;
     repos: Repository[];
@@ -14,7 +19,7 @@ interface AddExecutionProps {
     pId: string;
 }
 
-const AddMemberPopup: React.FC<AddExecutionProps> = ({ openAddExecutionDialog, repos, setOpenAddExecutionDialog, orgId, pId }) => {
+const AddExecutionDialog: React.FC<AddExecutionProps> = ({ openAddExecutionDialog, repos, setOpenAddExecutionDialog, orgId, pId }) => {
     
     const [selectedRepo, setSelectedRepo] = useState(repos[0].id);
 
@@ -54,4 +59,4 @@ const AddMemberPopup: React.FC<AddExecutionProps> = ({ openAddExecutionDialog, r
 
     )
 }
-export default AddMemberPopup;
+export default AddExecutionDialog;
