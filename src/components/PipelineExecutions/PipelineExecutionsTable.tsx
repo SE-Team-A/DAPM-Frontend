@@ -1,3 +1,8 @@
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   fetchPipelineExecutions,

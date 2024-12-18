@@ -1,6 +1,7 @@
 /**
  * Author:
  * - Ayat Al Rifai
+ * - Tamas Drabos
  */
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';

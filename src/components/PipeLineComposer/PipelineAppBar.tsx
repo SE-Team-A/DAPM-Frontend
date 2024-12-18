@@ -2,6 +2,7 @@
  * Author:
  * - Ayat Al Rifai 
  * - Thøger Bang Petersen
+ * - Tamas Drabos
  */
 
 import { AppBar, Box, Button, TextField, Toolbar, Typography } from "@mui/material";

@@ -1,3 +1,8 @@
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import { styled } from "@mui/material/styles";
 import Drawer from "@mui/material/Drawer";
 import Typography from "@mui/material/Typography";

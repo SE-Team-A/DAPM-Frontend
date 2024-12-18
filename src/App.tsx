@@ -1,5 +1,10 @@
 import { ThemeProvider, createTheme } from "@mui/material";
 
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import "./index.css";
 import "./App.css";
 import { Provider } from "react-redux";

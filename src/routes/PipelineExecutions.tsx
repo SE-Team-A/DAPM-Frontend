@@ -1,3 +1,8 @@
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import { useParams } from 'react-router-dom'
 import BasicSidebar from '../components/common/BasicSidebar'
 import { TopBar } from '../components/OverviewPage/TopBar';
