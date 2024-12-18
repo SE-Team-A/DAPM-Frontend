@@ -2,6 +2,7 @@
  * Author:
  * - Ayat Al Rifai 
  * - Thøger Bang Petersen
+ * - Tamas Drabos
  */
 
 import { AppBar, Box, Button, TextField, Toolbar, Typography } from "@mui/material";
@@ -49,8 +50,6 @@ export default function PipelineAppBar() {
       return { sourceHandle: edge.sourceHandle, targetHandle: edge.targetHandle }
     })
 
-    console.log("copied", edges)
-
     const dataSinks = flowData?.edges.map((edge) => {
       if (edge.data?.filename) {
         const newTarget = getHandleId()
@@ -79,8 +78,6 @@ export default function PipelineAppBar() {
         }
       }
     }).filter(node => node !== undefined) as any
-
-    console.log(JSON.stringify(dataSinks))
 
     const pipelineJson = {
       name: pipeline?.name ?? "",
@@ -155,10 +152,6 @@ export default function PipelineAppBar() {
 
   const savePipeline = async () => {
     const {org, repo, pipeline} = generateJson();
-    console.log(pipelineID);
-    console.log(pipeline);
-    console.log(pipeline.name);
-    
 
     if (pipelineID?.startsWith('pipeline')){
       const pipelineId = await putPipeline(org.id, repo.id, pipeline);    
@@ -172,7 +165,7 @@ export default function PipelineAppBar() {
    }
   };
 
-  const gotoExecutions = () => navigate(`/pipeline/${pipeline?.id}/executions`);
+  const gotoExecutions = () => navigate(`/executions/${organizations[0].id}/${pipeline?.repositoryId}/${pipeline?.id}`);
 
   const deployPipeline = async () => {
     const {org, repo, pipeline} = generateJson();

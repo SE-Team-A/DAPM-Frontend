@@ -1,3 +1,8 @@
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Stream } from "stream";

@@ -1,3 +1,8 @@
+/**
+ * Author:
+ * - Tamas Drabos
+ */
+
 import { Dialog, DialogTitle } from '@mui/material';
 import React from 'react'
 
